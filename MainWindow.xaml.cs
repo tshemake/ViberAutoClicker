@@ -10,11 +10,14 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using MessageBox = System.Windows.MessageBox;
 
 namespace ViberAutoClicker
 {
@@ -23,13 +26,13 @@ namespace ViberAutoClicker
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Timer _timer;
+        private System.Timers.Timer _timer;
         private Win32API.RECT? _viberClient;
 
         public MainWindow()
         {
             InitializeComponent();
-            _timer = new Timer(100);
+            _timer = new System.Timers.Timer(100);
             _timer.Elapsed += (sender, e) => HandleTimer();
             _timer.Start();
         }
@@ -55,6 +58,7 @@ namespace ViberAutoClicker
             }
             if (UpdatePositionViberClient())
             {
+                BringWindowToTop(new WindowInteropHelper(this).Handle);
                 MessageBox.Show($"[{_viberClient.Value.Left},{_viberClient.Value.Top}] - [{_viberClient.Value.Right},{_viberClient.Value.Bottom}]");
             }
         }
@@ -73,6 +77,12 @@ namespace ViberAutoClicker
             return hWnd;
         }
 
+        private void SetWindowSize(IntPtr hWnd)
+        {
+            int X = 709, Y = 49, cx = 1091, cy = 793;
+            Win32API.SetWindowPos(hWnd, IntPtr.Zero, X, Y, cx, cy, Win32API.SetWindowPosFlags.SWP_SHOWWINDOW);
+        }
+
         private bool BringWindowToTop(IntPtr hWnd)
         {
             return Win32API.SetForegroundWindow(hWnd);
@@ -89,7 +99,7 @@ namespace ViberAutoClicker
                 Debug.WriteLine("Client not found");
                 return false;
             }
-
+            SetWindowSize(hWnd);
             BringWindowToTop(hWnd);
 
             if (!Win32API.GetWindowRect(new HandleRef(this, hWnd), out rct))
@@ -161,6 +171,16 @@ namespace ViberAutoClicker
         {
             UpdatePositionViberClient();
             Click(214, 520);
+            var color = GetPixelColor(700, 760);
+            if (color.HasValue)
+            {
+                Debug.WriteLine("Client don't have account in viber");
+                return;
+            }
+            System.Windows.Clipboard.SetDataObject(MessageContent.Text, true);
+            Click(700, 760);
+            SendKeys.SendWait("^{v}");
+            Click(1000, 760);
         }
 
         public void PressEnterPhoneNumber_Click(object sender, RoutedEventArgs e)
@@ -214,7 +234,7 @@ namespace ViberAutoClicker
                 return null;
             }
             IntPtr hdc = Win32API.GetDC(IntPtr.Zero);
-            uint pixel = Win32API.GetPixel(hdc, x, y);
+            uint pixel = Win32API.GetPixel(hdc, x + _viberClient.Value.Left, y + _viberClient.Value.Top);
             if (pixel == 0xFFFFFF) return null;
             Win32API.ReleaseDC(IntPtr.Zero, hdc);
             System.Drawing.Color? color = System.Drawing.Color.FromArgb((int)(pixel & 0x000000FF),
@@ -248,7 +268,7 @@ namespace ViberAutoClicker
                         && _viberClient.Value.Left < pos.X && _viberClient.Value.Right > pos.X)
                     {
                         msg += $"Pos: {pos.X - _viberClient.Value.Left} - {pos.Y - _viberClient.Value.Top}";
-                        System.Drawing.Color? color = GetPixelColor(pos.X, pos.Y);
+                        System.Drawing.Color? color = GetPixelColor(pos.X - _viberClient.Value.Left, pos.Y - _viberClient.Value.Top);
                         if (color.HasValue)
                         {
                             msg += ", Color: " + color.Value.Name;

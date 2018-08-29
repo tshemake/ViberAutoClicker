@@ -20,10 +20,11 @@
             </ListBox.ContextMenu>
         </ListBox>
         <Button Content="Показать размеры" HorizontalAlignment="Left" Margin="10,37,0,0" VerticalAlignment="Top" Width="180" Name="GetWindowSizeViberClient" Click="GetWindowSizeViberClient_Click"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="29,387,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="242" Name="CursorPosition" Grid.Column="1"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="29,387,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="242" Name="CursorPosition" Grid.Column="1"/>
         <Button Content="Нажать 'Еще'" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top" Width="180" Name="PressMore" Click="PressMore_Click"/>
         <Button Content="Набрать номер" HorizontalAlignment="Left" Margin="10,91,0,0" VerticalAlignment="Top" Width="180" Name="PressEnterPhoneNumber" Click="PressEnterPhoneNumber_Click"/>
         <TextBox HorizontalAlignment="Left" Height="23" Margin="208,91,0,0" TextWrapping="Wrap" Text="9371509496" VerticalAlignment="Top" Width="188" Name="PhoneNumber"/>
         <Button Content="Нажать на отправку сообщения" HorizontalAlignment="Left" Margin="10,118,0,0" VerticalAlignment="Top" Width="180" Name="PressSendMessage" Click="PressSendMessage_Click"/>
+        <TextBox HorizontalAlignment="Left" Height="263" Margin="208,119,0,0" TextWrapping="Wrap" Text="Hello, World" VerticalAlignment="Top" Width="188" Name="MessageContent"/>
     </Grid>
 </Window>
