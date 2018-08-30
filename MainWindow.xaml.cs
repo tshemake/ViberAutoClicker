@@ -99,6 +99,7 @@ namespace ViberAutoClicker
                 Debug.WriteLine("Client not found");
                 return false;
             }
+            Win32API.ShowWindowAsync(hWnd, 3);
             SetWindowSize(hWnd);
             BringWindowToTop(hWnd);
 
@@ -282,6 +283,17 @@ namespace ViberAutoClicker
                 }));
             }
             catch { }
+        }
+
+        private void MinimizeViberClient_Click(object sender, RoutedEventArgs e)
+        {
+            IntPtr windowPtr = FindWindow(ViberClients.SelectedItem.ToString());
+            if (windowPtr == IntPtr.Zero)
+            {
+                Debug.WriteLine("Client not found");
+                return;
+            }
+            Win32API.ShowWindowAsync(windowPtr, 6);
         }
     }
 }
