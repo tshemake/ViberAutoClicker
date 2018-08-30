@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.DirectoryServices;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -294,6 +295,50 @@ namespace ViberAutoClicker
                 return;
             }
             Win32API.ShowWindowAsync(windowPtr, 6);
+        }
+
+        private void CreateWindowsLocalUserAccount_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                bool alreadyExists = false;
+                var path = string.Format("WinNT://{0},computer", Environment.MachineName);
+
+                using (var computerEntry = new DirectoryEntry(path))
+                {
+                    foreach (DirectoryEntry childEntry in computerEntry.Children)
+                    {
+                        if (childEntry.SchemaClassName == "User")
+                        {
+                            if (string.Equals(childEntry.Name, LocalUserAccountName.Text, StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                alreadyExists = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!alreadyExists)
+                    {
+                        DirectoryEntry NewUser = computerEntry.Children.Add(LocalUserAccountName.Text, "User");
+                        NewUser.Invoke("SetPassword", new object[] { "111111" });
+                        NewUser.Invoke("Put", new object[] { "Description", "User from Viber" });
+                        NewUser.CommitChanges();
+                        DirectoryEntry grp;
+
+                        grp = computerEntry.Children.Find("Администраторы", "group");
+                        if (grp != null) { grp.Invoke("Add", new object[] { NewUser.Path.ToString() }); }
+                        Debug.WriteLine("Account Created Successfully");
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Account already exists");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 }

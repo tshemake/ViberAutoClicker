@@ -25,7 +25,9 @@
         <Button Content="Набрать номер" HorizontalAlignment="Left" Margin="10,91,0,0" VerticalAlignment="Top" Width="180" Name="PressEnterPhoneNumber" Click="PressEnterPhoneNumber_Click"/>
         <TextBox HorizontalAlignment="Left" Height="23" Margin="208,91,0,0" TextWrapping="Wrap" Text="9371509496" VerticalAlignment="Top" Width="188" Name="PhoneNumber"/>
         <Button Content="Нажать на отправку сообщения" HorizontalAlignment="Left" Margin="10,118,0,0" VerticalAlignment="Top" Width="180" Name="PressSendMessage" Click="PressSendMessage_Click"/>
-        <TextBox HorizontalAlignment="Left" Height="263" Margin="208,119,0,0" TextWrapping="Wrap" Text="Hello, World" VerticalAlignment="Top" Width="188" Name="MessageContent"/>
+        <TextBox HorizontalAlignment="Left" Height="48" Margin="208,119,0,0" TextWrapping="Wrap" Text="Hello, World" VerticalAlignment="Top" Width="188" Name="MessageContent"/>
         <Button Content="Свернуть заданное окно" HorizontalAlignment="Left" Margin="10,145,0,0" VerticalAlignment="Top" Width="180" Name="MinimizeViberClient" Click="MinimizeViberClient_Click"/>
+        <Button Content="Создать пользователя Windows" HorizontalAlignment="Left" Margin="10,172,0,0" VerticalAlignment="Top" Width="180" Name="CreateWindowsLocalUserAccount" Click="CreateWindowsLocalUserAccount_Click"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="208,172,0,0" TextWrapping="Wrap" Text="User9371509496" VerticalAlignment="Top" Width="188" Name="LocalUserAccountName"/>
     </Grid>
 </Window>
