@@ -55,6 +55,16 @@ namespace Client
             StopIfRunning();
         }
 
+        public bool Send(string phone, string message)
+        {
+            if (!GoToMore()) return false;
+            if (!ClickPhoneNumberMenu()) return false;
+            if (!EnterPhoneNumber(phone)) return false;
+            if (!EnterMessage(message)) return false;
+            if (!SendMessage()) return false;
+            return true;
+        }
+
         private bool Do(Action action, int countAttempts, params Position[] positions)
         {
             bool successful = false;
@@ -118,7 +128,7 @@ namespace Client
             }, countAttempts, Position.MessageEditDisable);
         }
 
-        public bool SendMessage(string message, int countAttempts = 5)
+        public bool EnterMessage(string message, int countAttempts = 5)
         {
             if (IsDisableSendMessage()) return false;
 
@@ -132,7 +142,7 @@ namespace Client
             }, countAttempts, Position.SendMessageButton);
         }
 
-        public bool ClickMessage(string message, int countAttempts = 5)
+        public bool SendMessage(int countAttempts = 5)
         {
             return Do(delegate ()
             {

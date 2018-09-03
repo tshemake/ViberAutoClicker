@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Client
+namespace Client.Models
 {
-    public class Result
+    public class Info
     {
         public Guid Id { get; set; }
-        public Guid StatusId { get; set; }
+        public string Phone { get; set; }
     }
 }

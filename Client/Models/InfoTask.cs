@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Client
+namespace Client.Models
 {
-    public class Info
+    public class InfoTask
     {
-        public Guid Id { get; set; }
-        public string Phone { get; set; }
+        public ICollection<InfoDomain> Domains { get; set; }
     }
 }

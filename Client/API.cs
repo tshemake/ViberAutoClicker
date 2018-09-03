@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Client.Models;
 
 namespace Client
 {
@@ -11,11 +12,13 @@ namespace Client
     {
         public static string BaseAddress { get; set; }
 
-        public static async Task<InfoTask> GetTasksAsync(HttpClient client, string uri, int limit = 10)
+        private static HttpClient _client = new HttpClient();
+
+        public static async Task<InfoTask> GetTasksAsync(int limit = 10)
         {
             InfoTask task = null;
             Uri baseUri = new Uri(BaseAddress);
-            HttpResponseMessage response = await client.PostAsync(new Uri(baseUri, "api/tasks/take?limit=" + limit), null);
+            HttpResponseMessage response = await _client.PostAsync(new Uri(baseUri, "api/tasks/take?limit=" + limit), null);
             if (response.IsSuccessStatusCode)
             {
                 task = await response.Content.ReadAsAsync<InfoTask>();
@@ -23,10 +26,10 @@ namespace Client
             return task;
         }
 
-        public static async Task<bool> UpdateTasksAsync(HttpClient client, string uri, ResponeTask responeTask)
+        public static async Task<bool> UpdateTasksAsync(ResponeTask responeTask)
         {
             Uri baseUri = new Uri(BaseAddress);
-            HttpResponseMessage response = await client.PostAsJsonAsync(new Uri(baseUri, "api/tasks/update"), responeTask);
+            HttpResponseMessage response = await _client.PostAsJsonAsync(new Uri(baseUri, "api/tasks/update"), responeTask);
             if (response.IsSuccessStatusCode)
             {
                 return true;

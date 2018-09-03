@@ -67,14 +67,14 @@
     </ApplicationDefinition>
     <Compile Include="API.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="Info.cs" />
-    <Compile Include="InfoDomain.cs" />
-    <Compile Include="InfoTask.cs" />
+    <Compile Include="Models\Info.cs" />
+    <Compile Include="Models\InfoDomain.cs" />
+    <Compile Include="Models\InfoTask.cs" />
     <Compile Include="Mouse.cs" />
     <Compile Include="Native\Win32Api.cs" />
     <Compile Include="Position.cs" />
-    <Compile Include="ResponeTask.cs" />
-    <Compile Include="Result.cs" />
+    <Compile Include="Models\ResponeTask.cs" />
+    <Compile Include="Models\Result.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Viber.cs" />
     <Compile Include="ViberProfiles.cs" />

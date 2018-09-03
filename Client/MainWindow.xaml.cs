@@ -18,6 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Client.Models;
 using Client.Native;
 
 namespace Client
@@ -27,15 +28,21 @@ namespace Client
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static string roamingAppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        private ViberProfiles viberProfiles;
-        private Viber client;
+        private static Guid Delivered = Guid.Parse("82421000-ea57-44e0-8a2f-d2ec159f8fde");
+        private static Guid Failure = Guid.Parse("09bdbdee-46ea-451a-8049-4d1390be8b25");
+        private static Guid Sended = Guid.Parse("7e2f259b-8c03-4ba9-8363-5324466c475e");
+
+        private static string _roamingAppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        private ViberProfiles _viberProfiles;
+        private Viber _client;
         private Config _config = new Config();
+
+        private CancellationTokenSource _cts;
 
         public MainWindow()
         {
             InitializeComponent();
-            viberProfiles = new ViberProfiles(GetViberProfilesInRoamingAppData());
+            _viberProfiles = new ViberProfiles(GetViberProfilesInRoamingAppData());
             DataContext = _config;
         }
 
@@ -54,18 +61,94 @@ namespace Client
                 System.Windows.MessageBox.Show("Укажите URL сервера");
             }
 
-            client = new Viber(_config.ViberClientPath);
-            client.Stop();
+            _client = new Viber(_config.ViberClientPath);
+            _client.Stop();
             var profileDirs = GetViberProfilePathsInProfilesDirectoryPath();
             CopyProfilesToRoamingAppData(profileDirs);
-            viberProfiles.Reload(GetViberProfilesInRoamingAppData());
-            ChangeViberProfileInRoamingAppDataToDefult(viberProfiles);
-            client.Run();
+            _viberProfiles.Reload(GetViberProfilesInRoamingAppData());
+            ChangeViberProfileInRoamingAppDataToDefult(_viberProfiles);
+            Start.IsEnabled = false;
+            Stop.IsEnabled = true;
+            _cts = new CancellationTokenSource();
+            CancellationToken _token = _cts.Token;
+            Task.Run(() => RunWork(_token));
+        }
+
+        private async void RunWork(CancellationToken token, int maxQueue = 10)
+        {
+            API.BaseAddress = _config.ApiUrl;
+            _client.Run();
+            int count = 0;
+            while (true)
+            {
+                try
+                {
+                    InfoTask infoTask = await API.GetTasksAsync();
+
+                    ResponeTask responeTask = new ResponeTask
+                    {
+                        Tasks = new List<Result>()
+                    };
+
+                    foreach (var domain in infoTask.Domains)
+                    {
+                        try
+                        {
+                            if (token.IsCancellationRequested)
+                            {
+                                break;
+                            }
+                            foreach (var task in domain.Tasks)
+                            {
+                                count++;
+                                if (count >= maxQueue)
+                                {
+                                    _client.Stop();
+                                    _client.Run();
+                                    count = 1;
+                                }
+                                if (_client.Send(task.Phone, domain.Message))
+                                {
+                                    responeTask.Tasks.Add(new Result
+                                    {
+                                        Id = task.Id,
+                                        StatusId = Sended
+                                    });
+                                }
+                                else
+                                {
+                                    responeTask.Tasks.Add(new Result
+                                    {
+                                        Id = task.Id,
+                                        StatusId = Failure
+                                    });
+                                }
+                            }
+
+                            await API.UpdateTasksAsync(responeTask);
+                        }
+                        finally
+                        {
+                            _client.Stop();
+                        }
+                    }
+                }
+                catch
+                {
+                    System.Windows.MessageBox.Show("Проверьте доступность сервера");
+                    _cts.Cancel();
+                    break;
+                }
+                finally
+                {
+                    _cts.Dispose();
+                }
+            }
         }
 
         private static string DefaultViberProfileInRoamingAppData()
         {
-            return System.IO.Path.Combine(roamingAppData, "ViberPC");
+            return System.IO.Path.Combine(_roamingAppData, "ViberPC");
         }
 
         private static void ChangeViberProfileInRoamingAppDataToDefult(ViberProfiles viberProfiles)
@@ -78,10 +161,10 @@ namespace Client
             }
             else
             {
-                Directory.Move(defaultPath, System.IO.Path.Combine(roamingAppData, viberProfiles.CurrentProfile));
+                Directory.Move(defaultPath, System.IO.Path.Combine(_roamingAppData, viberProfiles.CurrentProfile));
             }
             string next = viberProfiles.GetNext();
-            Directory.Move(System.IO.Path.Combine(roamingAppData, viberProfiles.CurrentProfile), defaultPath);
+            Directory.Move(System.IO.Path.Combine(_roamingAppData, viberProfiles.CurrentProfile), defaultPath);
         }
 
         private static List<string> GetViberProfilePathsInProfilesDirectoryPath()
@@ -92,7 +175,7 @@ namespace Client
 
         private static List<string> GetViberProfilesInRoamingAppData()
         {
-            return Directory.EnumerateDirectories(roamingAppData)
+            return Directory.EnumerateDirectories(_roamingAppData)
                         .Select(d => GetViberPcProfileNameFromPath(d))
                         .Where(p => !string.IsNullOrEmpty(p)).ToList();
         }
@@ -121,11 +204,11 @@ namespace Client
                 bool existsProfile = existsViberPcProfiles.Contains(profileName);
                 if (existsProfile && replace)
                 {
-                    Directory.Delete(System.IO.Path.Combine(roamingAppData, profileName), true);
+                    Directory.Delete(System.IO.Path.Combine(_roamingAppData, profileName), true);
                 }
                 if (!existsProfile)
                 {
-                    DirectoryCopy(newProfileDir, System.IO.Path.Combine(roamingAppData, profileName));
+                    DirectoryCopy(newProfileDir, System.IO.Path.Combine(_roamingAppData, profileName));
                 }
             }
         }
@@ -197,6 +280,13 @@ namespace Client
             {
                 _config.ViberClientPath = dlg.FileName;
             }
+        }
+
+        private void Stop_Click(object sender, RoutedEventArgs e)
+        {
+            _cts.Cancel();
+            Start.IsEnabled = true;
+            Stop.IsEnabled = false;
         }
     }
 }
