@@ -3,23 +3,40 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2003
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViberAutoClicker", "ViberAutoClicker.csproj", "{52F52328-4DC1-4730-9E4B-A531F13A1706}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ViberAutoClicker", "ViberAutoClicker\ViberAutoClicker.shproj", "{4D7FEA28-4E03-435A-9EE0-B66A904AEA9D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservice", "Microservice\Microservice.csproj", "{66F0FD38-D25F-4019-A41A-85EDCA73EB91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservice.Tests", "Microservice.Tests\Microservice.Tests.csproj", "{EA513B59-F034-43A6-95B0-791F96B867D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{B9DB44AA-CD80-458C-A691-3C7C8F87CAD9}"
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		ViberAutoClicker\ViberAutoClicker.projitems*{4d7fea28-4e03-435a-9ee0-b66a904aea9d}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{52F52328-4DC1-4730-9E4B-A531F13A1706}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{52F52328-4DC1-4730-9E4B-A531F13A1706}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{52F52328-4DC1-4730-9E4B-A531F13A1706}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{52F52328-4DC1-4730-9E4B-A531F13A1706}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66F0FD38-D25F-4019-A41A-85EDCA73EB91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66F0FD38-D25F-4019-A41A-85EDCA73EB91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66F0FD38-D25F-4019-A41A-85EDCA73EB91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66F0FD38-D25F-4019-A41A-85EDCA73EB91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA513B59-F034-43A6-95B0-791F96B867D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA513B59-F034-43A6-95B0-791F96B867D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA513B59-F034-43A6-95B0-791F96B867D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA513B59-F034-43A6-95B0-791F96B867D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9DB44AA-CD80-458C-A691-3C7C8F87CAD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9DB44AA-CD80-458C-A691-3C7C8F87CAD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9DB44AA-CD80-458C-A691-3C7C8F87CAD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9DB44AA-CD80-458C-A691-3C7C8F87CAD9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {C8DA2800-EB19-4614-A8BC-17B02E11E7F3}
+		SolutionGuid = {CB5FCA2F-A70E-4AA3-B3DC-C6403653755F}
 	EndGlobalSection
 EndGlobal
