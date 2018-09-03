@@ -45,9 +45,9 @@ namespace Client
 
         public Point Position;
 
-        public Mouse(double x, double y)
+        public Mouse(int x, int y)
         {
-            Position = new Point(x, y);
+            Position = new Point() { X = x, Y = y };
         }
 
         public Mouse(Point mouse)
@@ -72,6 +72,11 @@ namespace Client
         {
             Win32Api.mouse_event(MOUSEEVENTF_LEFTDOWN, xDelta, yDelta, 0, 0);
             Win32Api.mouse_event(MOUSEEVENTF_LEFTUP, xDelta, yDelta, 0, 0);
+        }
+
+        public void LeftClick(Point delta)
+        {
+            LeftClick(delta.X, delta.Y);
         }
     }
 }

@@ -31,6 +31,13 @@ namespace Client.Native
             public int Y;
         }
 
+        public static class Keys
+        {
+            public const byte VK_CONTROL = 17;
+            public const uint KEYEVENTF_KEYDOWN = 0;
+            public const uint KEYEVENTF_KEYUP = 2;
+        }
+
         [Flags]
         public enum SetWindowPosFlags : uint
         {
@@ -142,7 +149,7 @@ namespace Client.Native
         public static extern int GetClassName(IntPtr hwnd, StringBuilder lpClassName, int nMaxCount);
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -157,6 +164,8 @@ namespace Client.Native
         [return: MarshalAs(UnmanagedType.Bool)]
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool SetCursorPos(int x, int y);
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern void mouse_event(int dwFlags, int dx, int dy, int cButtons, int dwExtraInfo);
         [return: MarshalAs(UnmanagedType.Bool)]

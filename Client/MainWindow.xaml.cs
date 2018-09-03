@@ -29,6 +29,7 @@ namespace Client
     {
         private static string roamingAppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         private ViberProfiles viberProfiles;
+        private Viber client;
 
         public MainWindow()
         {
@@ -57,11 +58,13 @@ namespace Client
                 System.Windows.MessageBox.Show("Выберите Viber клиента");
             }
 
+            client = new Viber(ViberClientPath.Text);
+            client.Stop();
             var profileDirs = GetViberProfilePathsInProfilesDirectoryPath();
             CopyProfilesToRoamingAppData(profileDirs);
             viberProfiles.Reload(GetViberProfilesInRoamingAppData());
             ChangeViberProfileInRoamingAppDataToDefult(viberProfiles);
-            StartViberClientIfNotRunning(ViberClientPath.Text);
+            client.Run();
         }
 
         private static string DefaultViberProfileInRoamingAppData()
@@ -169,29 +172,6 @@ namespace Client
             }
         }
 
-        private static void StartViberClientIfNotRunning(string pathToViberClient, string processName = "Viber")
-        {
-            if (!IsViberClientRunning(processName))
-            {
-                StartViberClient(pathToViberClient);
-            }
-        }
-
-        private static void StartViberClient(string pathToViberClient)
-        {
-            Process.Start(pathToViberClient);
-            while (Win32Api.FindWindow("Qt5QWindowOwnDCIcon", IntPtr.Zero) == IntPtr.Zero)
-            {
-                Thread.Sleep(1000);
-            }
-            Thread.Sleep(3000);
-        }
-
-        private static bool IsViberClientRunning(string sProcessName)
-        {
-            return Process.GetProcessesByName(sProcessName).Length > 0;
-        }
-
         private void ChangeProfilesDirectoryPath(string newPath)
         {
             if (string.IsNullOrEmpty(newPath)) return;
@@ -247,89 +227,6 @@ namespace Client
             {
                 ChangeViberClientPath(dlg.FileName);
             }
-        }
-
-        private static void StopViberClientIfRunning(string processName = "Viber")
-        {
-            if (IsViberClientRunning(processName))
-            {
-                Process[] processes = Process.GetProcessesByName(processName);
-                foreach (var process in processes)
-                {
-                    foreach (var hWnd in GetRootWindowsOfProcess(process.Id))
-                    {
-                        CloseProcess(hWnd);
-                    }
-                    process.Kill();
-                    process.WaitForExit(5000);
-                }
-            }
-            if (IsViberClientRunning(processName))
-            {
-                StopViberClientIfRunning(processName);
-            }
-        }
-        public IntPtr FindViberClient(string caption, bool wait = true)
-        {
-            int countAttempts = 3;
-            IntPtr hWnd = Win32Api.FindWindowByCaption(IntPtr.Zero, caption);
-            for (int i = 0; i <= countAttempts; i++)
-            {
-                if (hWnd != IntPtr.Zero) break;
-                Thread.Sleep(100);
-                hWnd = Win32Api.FindWindowByCaption(IntPtr.Zero, caption);
-            }
-
-            return hWnd;
-        }
-
-        private static bool CloseProcess(IntPtr hWnd)
-        {
-            IntPtr result = Win32Api.SendMessage(hWnd, Win32Api.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
-            return result == IntPtr.Zero;
-        }
-
-        private static List<IntPtr> GetRootWindowsOfProcess(int pid)
-        {
-            List<IntPtr> rootWindows = GetChildWindows(IntPtr.Zero);
-            List<IntPtr> dsProcRootWindows = new List<IntPtr>();
-            foreach (IntPtr hWnd in rootWindows)
-            {
-                Win32Api.GetWindowThreadProcessId(hWnd, out uint lpdwProcessId);
-                if (lpdwProcessId == pid)
-                    dsProcRootWindows.Add(hWnd);
-            }
-            return dsProcRootWindows;
-        }
-
-        private static List<IntPtr> GetChildWindows(IntPtr parent)
-        {
-            List<IntPtr> result = new List<IntPtr>();
-            GCHandle listHandle = GCHandle.Alloc(result);
-            try
-            {
-                Win32Api.Win32Callback childProc = new Win32Api.Win32Callback(EnumWindow);
-                Win32Api.EnumChildWindows(parent, childProc, GCHandle.ToIntPtr(listHandle));
-            }
-            finally
-            {
-                if (listHandle.IsAllocated)
-                    listHandle.Free();
-            }
-            return result;
-        }
-
-        private static bool EnumWindow(IntPtr handle, IntPtr pointer)
-        {
-            GCHandle gch = GCHandle.FromIntPtr(pointer);
-            List<IntPtr> list = gch.Target as List<IntPtr>;
-            if (list == null)
-            {
-                throw new InvalidCastException("GCHandle Target could not be cast as List<IntPtr>");
-            }
-            list.Add(handle);
-            //  You can modify this to check to see if you want to cancel the operation, then return a null here
-            return true;
         }
     }
 }
