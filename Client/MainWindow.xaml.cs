@@ -30,35 +30,31 @@ namespace Client
         private static string roamingAppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         private ViberProfiles viberProfiles;
         private Viber client;
+        private Config _config = new Config();
 
         public MainWindow()
         {
             InitializeComponent();
-            ChangeProfilesDirectoryPath(Properties.Settings.Default.ProfilesDirectoryPath);
-            if (string.IsNullOrEmpty(Properties.Settings.Default.ViberClientPath))
-            {
-                ChangeViberClientPath(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    @"Viber\Viber.exe"));
-            }
-            else
-            {
-                ChangeViberClientPath(Properties.Settings.Default.ViberClientPath);
-            }
             viberProfiles = new ViberProfiles(GetViberProfilesInRoamingAppData());
+            DataContext = _config;
         }
 
         private void Start_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(ProfilePath.Text) || !Directory.Exists(ProfilePath.Text))
+            if (string.IsNullOrEmpty(_config.ProfilePath) || !Directory.Exists(_config.ProfilePath))
             {
                 System.Windows.MessageBox.Show("Выберите директорию с профилями");
             }
-            if (string.IsNullOrEmpty(ViberClientPath.Text) || !File.Exists(ViberClientPath.Text))
+            if (string.IsNullOrEmpty(_config.ViberClientPath) || !File.Exists(_config.ViberClientPath))
             {
                 System.Windows.MessageBox.Show("Выберите Viber клиента");
             }
+            if (string.IsNullOrEmpty(_config.ApiUrl) || !File.Exists(_config.ApiUrl))
+            {
+                System.Windows.MessageBox.Show("Укажите URL сервера");
+            }
 
-            client = new Viber(ViberClientPath.Text);
+            client = new Viber(_config.ViberClientPath);
             client.Stop();
             var profileDirs = GetViberProfilePathsInProfilesDirectoryPath();
             CopyProfilesToRoamingAppData(profileDirs);
@@ -172,32 +168,6 @@ namespace Client
             }
         }
 
-        private void ChangeProfilesDirectoryPath(string newPath)
-        {
-            if (string.IsNullOrEmpty(newPath)) return;
-
-            if (newPath != ProfilePath.Text
-                && Directory.Exists(newPath))
-            {
-                ProfilePath.Text = newPath;
-                Properties.Settings.Default.ProfilesDirectoryPath = newPath;
-                Properties.Settings.Default.Save();
-            }
-        }
-
-        private void ChangeViberClientPath(string newPath)
-        {
-            if (string.IsNullOrEmpty(newPath)) return;
-
-            if (newPath != ViberClientPath.Text
-                && File.Exists(newPath))
-            {
-                ViberClientPath.Text = newPath;
-                Properties.Settings.Default.ViberClientPath = newPath;
-                Properties.Settings.Default.Save();
-            }
-        }
-
         private void SelectProfile_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new FolderBrowserDialog();
@@ -208,7 +178,7 @@ namespace Client
             var result = dialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                ChangeProfilesDirectoryPath(dialog.SelectedPath);
+                _config.ProfilePath = dialog.SelectedPath;
             }
         }
 
@@ -225,7 +195,7 @@ namespace Client
 
             if (result == true)
             {
-                ChangeViberClientPath(dlg.FileName);
+                _config.ViberClientPath = dlg.FileName;
             }
         }
     }

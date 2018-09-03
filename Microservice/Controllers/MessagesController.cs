@@ -54,7 +54,7 @@ namespace Microservice.Controllers
             }
 
             ICollection<Message> tasks = new List<Message>();
-            foreach (var domain in model.Dimains)
+            foreach (var domain in model.Domains)
             {
                 foreach (string phone in domain.Phones)
                 {
@@ -77,7 +77,7 @@ namespace Microservice.Controllers
             }
 
             InfoTask result = new InfoTask {
-                Dimains = tasks.GroupBy(msg => msg.Content,
+                Domains = tasks.GroupBy(msg => msg.Content,
                 (key, group) => new InfoDomain {
                     Message = key,
                     Tasks = group.Select(msg => (Info)msg).ToList()
@@ -143,7 +143,7 @@ namespace Microservice.Controllers
             }
 
             InfoTask result = new InfoTask {
-                Dimains = tasks.GroupBy(msg => msg.Content,
+                Domains = tasks.GroupBy(msg => msg.Content,
                 (key, group) => new InfoDomain {
                     Message = key,
                     Tasks = group.Select(msg => (Info)msg).ToList()

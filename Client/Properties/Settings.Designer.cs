@@ -46,5 +46,17 @@ namespace Client.Properties {
                 this["ViberClientPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ApiUrl {
+            get {
+                return ((string)(this["ApiUrl"]));
+            }
+            set {
+                this["ApiUrl"] = value;
+            }
+        }
     }
 }

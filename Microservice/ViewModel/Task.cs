@@ -7,11 +7,11 @@ namespace Microservice.ViewModel
 {
     public class AddTask
     {
-        public ICollection<AddDomain> Dimains { get; set; }
+        public ICollection<AddDomain> Domains { get; set; }
     }
     public class InfoTask
     {
-        public ICollection<InfoDomain> Dimains { get; set; }
+        public ICollection<InfoDomain> Domains { get; set; }
     }
     public class ResponeTask
     {
