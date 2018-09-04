@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using Client.Native;
 
 namespace Client
@@ -18,6 +19,8 @@ namespace Client
         private const string _processName = "Viber";
 
         private readonly Mouse _virtualMouse;
+
+        public int State { get; private set; }
 
         public string ExePath { get; private set; }
 
@@ -47,21 +50,26 @@ namespace Client
             }
 
             SetWindowSize(hWnd);
+            State = 0;
             return true;
         }
 
-        public void Stop()
-        {
-            StopIfRunning();
-        }
-
-        public bool Send(string phone, string message)
+        public bool Send(string phoneNumber, string message)
         {
             if (!GoToMore()) return false;
+            State = 1;
             if (!ClickPhoneNumberMenu()) return false;
-            if (!EnterPhoneNumber(phone)) return false;
+            State = 2;
+            if (!EnterPhoneNumber(phoneNumber)) return false;
+            State = 3;
+            if (!ClickMessageButton()) return false;
+            State = 4;
+            if (!IsEnableSendMessage()) return false;
+            State = 5;
             if (!EnterMessage(message)) return false;
+            State = 6;
             if (!SendMessage()) return false;
+            State = 7;
             return true;
         }
 
@@ -75,12 +83,12 @@ namespace Client
                     if (!SetForegroundWindow()) continue;
                     Thread.Sleep(100);
                     action();
-                    Thread.Sleep(100);
+                    Thread.Sleep(600);
                     bool isMatch = true;
                     foreach (var position in positions)
                     {
                         Color? color = GetPixelColor(_positionMap[position]);
-                        if (!color.HasValue || color.Value.ToArgb() != _positionMap[Position.More].Argb)
+                        if (!color.HasValue || color.Value.ToArgb() != _positionMap[position].Argb)
                         {
                             isMatch = false;
                             break;
@@ -97,60 +105,74 @@ namespace Client
         {
             return Do(delegate ()
             {
-                SendCtrlKey('D');
+                _virtualMouse.MoveTo(_positionMap[Position.More]).LeftClick();
             }, countAttempts, Position.More);
         }
 
         public bool ClickPhoneNumberMenu(int countAttempts = 5)
         {
+            State = 2;
             return Do(delegate ()
             {
-                _virtualMouse.LeftClick(_positionMap[Position.PhoneNumberMenu]);
-            }, countAttempts, Position.NumberButton1);
+                _virtualMouse.MoveTo(_positionMap[Position.PhoneNumberMenu]).LeftClick();
+            }, countAttempts, Position.More);
         }
 
         public bool EnterPhoneNumber(string phoneNumber, int countAttempts = 5)
         {
             return Do(delegate ()
             {
-                Clipboard.SetText(phoneNumber);
-                _virtualMouse.LeftClick(_positionMap[Position.PhoneNumberEdit]);
+                System.Windows.Clipboard.SetDataObject(phoneNumber, true);
                 Thread.Sleep(100);
+                _virtualMouse.MoveTo(_positionMap[Position.PhoneNumberEdit]).LeftClick();
                 SendCtrlKey('A');
                 SendCtrlKey('V');
-            }, countAttempts, Position.SendMessageIcon);
+            }, countAttempts, Position.More);
         }
 
-        private bool IsDisableSendMessage(int countAttempts = 5)
+        public bool ClickMessageButton(int countAttempts = 5)
         {
             return Do(delegate ()
             {
-            }, countAttempts, Position.MessageEditDisable);
+                _virtualMouse.MoveTo(_positionMap[Position.MessageButton]).LeftClick();
+            }, countAttempts, Position.DialogChat);
         }
 
-        public bool EnterMessage(string message, int countAttempts = 5)
+        private bool IsEnableSendMessage(int countAttempts = 5)
         {
-            if (IsDisableSendMessage()) return false;
+            SetForegroundWindow();
+            Thread.Sleep(100);
+            Color? color = GetPixelColor(_positionMap[Position.MessageEditBlock]);
+            if (!color.HasValue || color.Value.ToArgb() != _positionMap[Position.MessageEditBlock].Argb)
+            {
+                return false;
+            }
+            return true;
+        }
 
+        public bool EnterMessage(string message, int countAttempts = 1)
+        {
             return Do(delegate ()
             {
-                _virtualMouse.LeftClick(_positionMap[Position.MessageEditDisable]);
-                Clipboard.SetText(message);
-                Thread.Sleep(100);
+                _virtualMouse.MoveTo(_positionMap[Position.MessageEdit]).LeftClick();
+                System.Windows.Clipboard.SetText(message);
                 SendCtrlKey('A');
                 SendCtrlKey('V');
-            }, countAttempts, Position.SendMessageButton);
+            }, countAttempts, Position.MessageEditBlock);
         }
 
         public bool SendMessage(int countAttempts = 5)
         {
             return Do(delegate ()
             {
-                _virtualMouse.LeftClick(_positionMap[Position.SendMessageButton]);
-                Thread.Sleep(100);
-                SendCtrlKey('A');
-                SendCtrlKey('V');
-            }, countAttempts, Position.NumberButton1);
+                SendEnter();
+            }, countAttempts, Position.MessageEditBlock);
+        }
+
+        public void Close()
+        {
+            StopIfRunning();
+            State = 8;
         }
 
         private static void SendCtrlKey(char key)
@@ -159,6 +181,12 @@ namespace Client
             Win32Api.keybd_event((byte)key, 0, Win32Api.Keys.KEYEVENTF_KEYDOWN, 0);
             Win32Api.keybd_event((byte)key, 0, Win32Api.Keys.KEYEVENTF_KEYUP, 0);
             Win32Api.keybd_event(Win32Api.Keys.VK_CONTROL, 0, Win32Api.Keys.KEYEVENTF_KEYUP, 0);
+        }
+
+        private static void SendEnter()
+        {
+            Win32Api.keybd_event(Win32Api.Keys.VK_ENTER, 0, Win32Api.Keys.KEYEVENTF_KEYDOWN, 0);
+            Win32Api.keybd_event(Win32Api.Keys.VK_ENTER, 0, Win32Api.Keys.KEYEVENTF_KEYUP, 0);
         }
 
         private static void SetWindowSize(IntPtr hWnd)
@@ -170,7 +198,7 @@ namespace Client
         private bool SetForegroundWindow()
         {
             IntPtr hWnd = FindWindow();
-            if (hWnd != IntPtr.Zero)
+            if (hWnd == IntPtr.Zero)
                 return false;
 
             return Win32Api.SetForegroundWindow(hWnd);
@@ -180,16 +208,21 @@ namespace Client
         {
             while (IsRunning())
             {
-                Process[] processes = Process.GetProcessesByName(_processName);
-                foreach (var process in processes)
+                try
                 {
-                    foreach (var hWnd in GetRootWindowsOfProcess(process.Id))
+                    Process[] processes = Process.GetProcessesByName(_processName);
+                    foreach (var process in processes)
                     {
-                        CloseProcess(hWnd);
+                        foreach (var hWnd in GetRootWindowsOfProcess(process.Id))
+                        {
+                            CloseProcess(hWnd);
+                        }
+                        process.Kill();
+                        process.WaitForExit(5000);
                     }
-                    process.Kill();
-                    process.WaitForExit(5000);
                 }
+                catch
+                { }
             }
         }
 
@@ -290,10 +323,11 @@ namespace Client
         {
             { Position.More, new Point { X = 256, Y = 120, Argb = -1118482 } },
             { Position.PhoneNumberMenu, new Point { X = 200, Y = 400, Argb = -1118739 } },
-            { Position.NumberButton1, new Point { X = 115, Y = 257, Argb = -921103 } },
-            { Position.PhoneNumberEdit, new Point { X = 250, Y = 160, Argb = -197380 } },
-            { Position.MessageEditDisable, new Point { X = 750, Y = 582, Argb = -2235934 } },
-            { Position.SendMessageButton, new Point { X = 1100, Y = 574, Argb = -8470278 } }
+            { Position.PhoneNumberEdit, new Point { X = 163, Y = 163, Argb = -197380 } },
+            { Position.MessageButton, new Point { X = 230, Y = 520, Argb = -10134357 } },
+            { Position.MessageEdit, new Point { X = 600, Y = 583, Argb = -2235934 } },
+            { Position.MessageEditBlock, new Point { X = 338, Y = 583, Argb = -1315346 } },
+            { Position.DialogChat, new Point { X = 320, Y = 200, Argb = -2235934 } }
         };
 
         #region Dispose pattern
@@ -314,7 +348,7 @@ namespace Client
             {
             }
 
-            StopIfRunning();
+            //StopIfRunning();
 
             disposed = true;
         }

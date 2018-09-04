@@ -50,33 +50,22 @@ namespace Client
             Position = new Point() { X = x, Y = y };
         }
 
-        public Mouse(Point mouse)
-            : this(mouse.X, mouse.Y)
+        public Mouse(Point point)
+            : this(point.X, point.Y)
         {
         }
 
-        public void MoveTo(int xDelta, int yDelta)
+        public Mouse MoveTo(Point point)
         {
-            Position.X += xDelta;
-            Position.Y += yDelta;
-            Win32Api.mouse_event(MOUSEEVENTF_MOVE, xDelta, yDelta, 0, 0);
+            Win32Api.SetCursorPos(point.X, point.Y);
+            return this;
         }
 
-        public void LeftClick()
+        public Mouse LeftClick()
         {
             Win32Api.mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
             Win32Api.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-        }
-
-        public void LeftClick(int xDelta, int yDelta)
-        {
-            Win32Api.mouse_event(MOUSEEVENTF_LEFTDOWN, xDelta, yDelta, 0, 0);
-            Win32Api.mouse_event(MOUSEEVENTF_LEFTUP, xDelta, yDelta, 0, 0);
-        }
-
-        public void LeftClick(Point delta)
-        {
-            LeftClick(delta.X, delta.Y);
+            return this;
         }
     }
 }

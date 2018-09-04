@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="618" Width="500" Left="1091" Top="0">
     <Grid>
         <Button Content="Выбор папки с профилями" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="160" Click="SelectProfile_Click"/>
         <TextBlock HorizontalAlignment="Left" Text="{Binding Path=ProfilePath}" Margin="175,44,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="607"/>

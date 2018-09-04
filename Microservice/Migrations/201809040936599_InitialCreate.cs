@@ -3,7 +3,7 @@ namespace Microservice.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class Initial : DbMigration
+    public partial class InitialCreate : DbMigration
     {
         public override void Up()
         {
@@ -17,8 +17,8 @@ namespace Microservice.Migrations
                         CreatedAt = c.DateTime(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Status", t => t.StatusId)
-                .ForeignKey("dbo.Messages", t => t.TaskId)
+                .ForeignKey("dbo.Status", t => t.StatusId, cascadeDelete: false)
+                .ForeignKey("dbo.Messages", t => t.TaskId, cascadeDelete: false)
                 .Index(t => t.TaskId)
                 .Index(t => t.StatusId);
             
@@ -43,7 +43,7 @@ namespace Microservice.Migrations
                         UpdatedAt = c.DateTime(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Status", t => t.StatusId, cascadeDelete: true)
+                .ForeignKey("dbo.Status", t => t.StatusId, cascadeDelete: false)
                 .Index(t => t.StatusId);
             
         }

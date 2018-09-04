@@ -18,10 +18,9 @@ namespace Client
         More,
         PhoneNumberMenu,
         PhoneNumberEdit,
-        NumberButton1,
         MessageButton,
-        SendMessageIcon,
-        MessageEditDisable,
-        SendMessageButton
+        MessageEdit,
+        MessageEditBlock,
+        DialogChat
     }
 }

@@ -34,6 +34,7 @@ namespace Client.Native
         public static class Keys
         {
             public const byte VK_CONTROL = 17;
+            public const byte VK_ENTER = 13;
             public const uint KEYEVENTF_KEYDOWN = 0;
             public const uint KEYEVENTF_KEYUP = 2;
         }

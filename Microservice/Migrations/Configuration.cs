@@ -51,6 +51,10 @@ namespace Microservice.Migrations
                 new Status {
                     Id = Guid.Parse("09BDBDEE-46EA-451A-8049-4D1390BE8B25"),
                     Name = "Failure"
+                },
+                new Status {
+                    Id = Guid.Parse("6B75DE8A-480E-4396-8368-E4ED2E851E9D"),
+                    Name = "Not registered"
                 }
             );
         }

@@ -31,6 +31,7 @@ namespace Client
         private static Guid Delivered = Guid.Parse("82421000-ea57-44e0-8a2f-d2ec159f8fde");
         private static Guid Failure = Guid.Parse("09bdbdee-46ea-451a-8049-4d1390be8b25");
         private static Guid Sended = Guid.Parse("7e2f259b-8c03-4ba9-8363-5324466c475e");
+        private static Guid NotRegisteredId = Guid.Parse("6B75DE8A-480E-4396-8368-E4ED2E851E9D");
 
         private static string _roamingAppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         private ViberProfiles _viberProfiles;
@@ -46,35 +47,38 @@ namespace Client
             DataContext = _config;
         }
 
-        private void Start_Click(object sender, RoutedEventArgs e)
+        private async void Start_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(_config.ProfilePath) || !Directory.Exists(_config.ProfilePath))
             {
                 System.Windows.MessageBox.Show("Выберите директорию с профилями");
+                return;
             }
             if (string.IsNullOrEmpty(_config.ViberClientPath) || !File.Exists(_config.ViberClientPath))
             {
                 System.Windows.MessageBox.Show("Выберите Viber клиента");
+                return;
             }
-            if (string.IsNullOrEmpty(_config.ApiUrl) || !File.Exists(_config.ApiUrl))
+            if (string.IsNullOrEmpty(_config.ApiUrl))
             {
                 System.Windows.MessageBox.Show("Укажите URL сервера");
+                return;
             }
 
             _client = new Viber(_config.ViberClientPath);
-            _client.Stop();
+            _client.Close();
             var profileDirs = GetViberProfilePathsInProfilesDirectoryPath();
             CopyProfilesToRoamingAppData(profileDirs);
             _viberProfiles.Reload(GetViberProfilesInRoamingAppData());
             ChangeViberProfileInRoamingAppDataToDefult(_viberProfiles);
-            Start.IsEnabled = false;
-            Stop.IsEnabled = true;
             _cts = new CancellationTokenSource();
             CancellationToken _token = _cts.Token;
-            Task.Run(() => RunWork(_token));
+            Start.IsEnabled = false;
+            Stop.IsEnabled = true;
+            await RunWork(_token);
         }
 
-        private async void RunWork(CancellationToken token, int maxQueue = 10)
+        private async Task RunWork(CancellationToken token, int maxCountMessage = 50)
         {
             API.BaseAddress = _config.ApiUrl;
             _client.Run();
@@ -83,7 +87,12 @@ namespace Client
             {
                 try
                 {
-                    InfoTask infoTask = await API.GetTasksAsync();
+                    if (token.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
+                    InfoTask infoTask = await API.GetTasksAsync(maxCountMessage);
 
                     ResponeTask responeTask = new ResponeTask
                     {
@@ -94,56 +103,55 @@ namespace Client
                     {
                         try
                         {
-                            if (token.IsCancellationRequested)
-                            {
-                                break;
-                            }
                             foreach (var task in domain.Tasks)
                             {
-                                count++;
-                                if (count >= maxQueue)
+                                if (count >= maxCountMessage)
                                 {
-                                    _client.Stop();
+                                    _client.Close();
+                                    ChangeViberProfileInRoamingAppDataToDefult(_viberProfiles);
                                     _client.Run();
                                     count = 1;
                                 }
+
+                                Guid statusId = Failure;
+                                count++;
                                 if (_client.Send(task.Phone, domain.Message))
                                 {
-                                    responeTask.Tasks.Add(new Result
-                                    {
-                                        Id = task.Id,
-                                        StatusId = Sended
-                                    });
+                                    count++;
                                 }
-                                else
+                                switch (_client.State)
                                 {
-                                    responeTask.Tasks.Add(new Result
-                                    {
-                                        Id = task.Id,
-                                        StatusId = Failure
-                                    });
+                                    case 4:
+                                        statusId = NotRegisteredId;
+                                        break;
+                                    case 7:
+                                        statusId = Sended;
+                                        break;
+                                    default:
+                                        statusId = Failure;
+                                        break;
                                 }
+                                responeTask.Tasks.Add(new Result
+                                {
+                                    Id = task.Id,
+                                    StatusId = statusId
+                                });
                             }
-
                             await API.UpdateTasksAsync(responeTask);
                         }
-                        finally
+                        catch (Exception ex)
                         {
-                            _client.Stop();
+                            Debug.WriteLine(ex);
                         }
                     }
+                    Thread.Sleep(5000);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    System.Windows.MessageBox.Show("Проверьте доступность сервера");
-                    _cts.Cancel();
-                    break;
-                }
-                finally
-                {
-                    _cts.Dispose();
+                    Debug.WriteLine(ex);
                 }
             }
+            Start.IsEnabled = true;
         }
 
         private static string DefaultViberProfileInRoamingAppData()
@@ -284,8 +292,11 @@ namespace Client
 
         private void Stop_Click(object sender, RoutedEventArgs e)
         {
-            _cts.Cancel();
-            Start.IsEnabled = true;
+            if (!_cts.IsCancellationRequested)
+            {
+                _cts.Cancel();
+                _cts.Dispose();
+            }
             Stop.IsEnabled = false;
         }
     }

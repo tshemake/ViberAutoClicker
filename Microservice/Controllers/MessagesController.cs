@@ -21,6 +21,7 @@ namespace Microservice.Controllers
         private static readonly Guid pendingId = Guid.Parse("761CF6D7-7B24-48A1-9D98-64F7C4F99B25");
         private static readonly Guid activeId = Guid.Parse("8EE0B305-4D92-4438-89CE-DD0C8260451D");
         private static readonly Guid resumeId = Guid.Parse("D0074B8C-50BF-4631-90EE-9E6C869AD7BF");
+        private static readonly Guid failureId = Guid.Parse("09BDBDEE-46EA-451A-8049-4D1390BE8B25");
 
         public MessagesController(IMessageRepository repository)
         {
@@ -126,7 +127,9 @@ namespace Microservice.Controllers
         [ResponseType(typeof(InfoTask))]
         public async Task<IHttpActionResult> Post(int limit = 10)
         {
-            var tasks = await _repository.GetAllAsync(m => m.StatusId == pendingId || m.StatusId == resumeId, limit: limit);
+            var tasks = await _repository.GetAllAsync(m => m.StatusId == pendingId
+                || m.StatusId == resumeId
+                || m.StatusId == failureId, limit: limit);
 
             foreach (var task in tasks)
             {
