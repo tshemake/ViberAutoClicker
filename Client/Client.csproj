@@ -66,7 +66,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="API.cs" />
-    <Compile Include="Config.cs" />
+    <Compile Include="Models\Config.cs" />
     <Compile Include="Models\Info.cs" />
     <Compile Include="Models\InfoDomain.cs" />
     <Compile Include="Models\InfoTask.cs" />
@@ -79,6 +79,7 @@
     <Compile Include="TaskExtensions.cs" />
     <Compile Include="Viber.cs" />
     <Compile Include="ViberProfiles.cs" />
+    <Compile Include="ViewModels\ConfigViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

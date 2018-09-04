@@ -44,7 +44,7 @@ namespace Client
         {
             InitializeComponent();
             _viberProfiles = new ViberProfiles(GetViberProfilesInRoamingAppData());
-            DataContext = _config;
+            //DataContext = _config;
         }
 
         private async void Start_Click(object sender, RoutedEventArgs e)
