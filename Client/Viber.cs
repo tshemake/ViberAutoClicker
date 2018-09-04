@@ -141,7 +141,7 @@ namespace Client
         private bool IsEnableSendMessage(int countAttempts = 5)
         {
             SetForegroundWindow();
-            Thread.Sleep(100);
+            Thread.Sleep(600);
             Color? color = GetPixelColor(_positionMap[Position.MessageEditBlock]);
             if (!color.HasValue || color.Value.ToArgb() != _positionMap[Position.MessageEditBlock].Argb)
             {

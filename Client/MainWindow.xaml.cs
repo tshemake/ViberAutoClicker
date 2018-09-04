@@ -92,7 +92,7 @@ namespace Client
                         break;
                     }
 
-                    InfoTask infoTask = await API.GetTasksAsync(maxCountMessage);
+                    InfoTask infoTask = await API.GetTasksAsync();
 
                     ResponeTask responeTask = new ResponeTask
                     {
@@ -107,14 +107,16 @@ namespace Client
                             {
                                 if (count >= maxCountMessage)
                                 {
-                                    _client.Close();
-                                    ChangeViberProfileInRoamingAppDataToDefult(_viberProfiles);
-                                    _client.Run();
-                                    count = 1;
+                                    if (_viberProfiles.Count > 1)
+                                    {
+                                        _client.Close();
+                                        ChangeViberProfileInRoamingAppDataToDefult(_viberProfiles);
+                                        _client.Run();
+                                        count = 1;
+                                    }
                                 }
 
                                 Guid statusId = Failure;
-                                count++;
                                 if (_client.Send(task.Phone, domain.Message))
                                 {
                                     count++;

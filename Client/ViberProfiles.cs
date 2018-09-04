@@ -16,6 +16,11 @@ namespace Client
         }
         private int _current;
 
+        public int Count
+        {
+            get { return _profileNames.Count; }
+        }
+
         public string CurrentProfile
         {
             get { return _current > -1 ? _profileNames[_current] : null; }
@@ -35,6 +40,7 @@ namespace Client
 
         public string GetNext()
         {
+            if (Count == 0) return string.Empty;
             if (_current + 1 < _profileNames.Count)
             {
                 _current++;
