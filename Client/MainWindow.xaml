@@ -8,11 +8,11 @@
         Title="MainWindow" Height="618" Width="500" Left="1091" Top="0">
     <Grid>
         <Button Content="Выбор папки с профилями" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="160" Click="SelectProfile_Click"/>
-        <TextBlock HorizontalAlignment="Left" Text="{Binding Path=ProfilePath}" Margin="175,44,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="607"/>
+        <TextBlock HorizontalAlignment="Left" Text="{Binding Path=ProfilePath, TargetNullValue=''}" Margin="175,44,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="307"/>
         <Button Content="Выбор Viber клиента" HorizontalAlignment="Left" Margin="10,68,0,0" VerticalAlignment="Top" Width="160" RenderTransformOrigin="-0.747,0.091" Click="SelectViberClient_Click"/>
-        <TextBlock HorizontalAlignment="Left" Text="{Binding Path=ViberClientPath}" Margin="175,71,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="607"/>
+        <TextBlock HorizontalAlignment="Left" Text="{Binding Path=ViberClientPath, TargetNullValue=''}" Margin="175,71,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="307"/>
         <Button Name="Start" Content="Старт" HorizontalAlignment="Left" Margin="10,95,0,0" VerticalAlignment="Top" Width="75" Click="Start_Click"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="175,10,0,0" TextWrapping="Wrap" Text="{Binding Path=ApiUrl}" VerticalAlignment="Top" Width="607"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="175,10,0,0" TextWrapping="Wrap" Text="{Binding Path=ApiUrl, TargetNullValue=''}" VerticalAlignment="Top" Width="307"/>
         <Label Content="API URL:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="160"/>
         <Button Name="Stop" Content="Стоп" HorizontalAlignment="Left" Margin="10,122,0,0" VerticalAlignment="Top" Width="75" Click="Stop_Click" IsEnabled="False"/>
     </Grid>
