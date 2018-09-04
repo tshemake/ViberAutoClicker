@@ -326,7 +326,7 @@ namespace Client
             { Position.PhoneNumberEdit, new Point { X = 163, Y = 163, Argb = -197380 } },
             { Position.MessageButton, new Point { X = 230, Y = 520, Argb = -10134357 } },
             { Position.MessageEdit, new Point { X = 600, Y = 583, Argb = -2235934 } },
-            { Position.MessageEditBlock, new Point { X = 338, Y = 583, Argb = -1315346 } },
+            { Position.MessageEditBlock, new Point { X = 310, Y = 583, Argb = -1315346 } },
             { Position.DialogChat, new Point { X = 320, Y = 200, Argb = -2235934 } }
         };
 
