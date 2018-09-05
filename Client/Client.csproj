@@ -79,7 +79,6 @@
     <Compile Include="Models\ResponeTask.cs" />
     <Compile Include="Models\Result.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="TaskExtensions.cs" />
     <Compile Include="Viber.cs" />
     <Compile Include="ViberProfiles.cs" />
     <Compile Include="ViewModels\ConfigViewModel.cs" />
