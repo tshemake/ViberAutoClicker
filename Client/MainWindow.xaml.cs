@@ -112,15 +112,12 @@ namespace Client
                         {
                             foreach (var task in domain.Tasks)
                             {
-                                if (count >= maxCountMessage)
+                                if (count >= maxCountMessage && _viberProfiles.Count > 1)
                                 {
-                                    if (_viberProfiles.Count > 1)
-                                    {
-                                        _client.Close();
-                                        ChangeViberProfileInRoamingAppData(_viberProfiles);
-                                        _client.Run();
-                                        count = 1;
-                                    }
+                                    _client.Close();
+                                    ChangeViberProfileInRoamingAppData(_viberProfiles);
+                                    _client.Run();
+                                    count = 1;
                                 }
 
                                 Guid statusId = Failure;
@@ -146,12 +143,15 @@ namespace Client
                                     StatusId = statusId
                                 });
                             }
-
-                            await API.UpdateTasksAsync(responeTask);
                         }
                         catch (Exception ex)
                         {
                             Debug.WriteLine(ex);
+                        }
+                        finally
+                        {
+                            if (responeTask.Tasks.Any())
+                                await API.UpdateTasksAsync(responeTask);
                         }
                     }
                     Thread.Sleep(5000);
