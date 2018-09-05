@@ -111,7 +111,6 @@ namespace Client
 
         public bool ClickPhoneNumberMenu(int countAttempts = 5)
         {
-            State = 2;
             return Do(delegate ()
             {
                 _virtualMouse.MoveTo(_positionMap[Position.PhoneNumberMenu]).LeftClick();
