@@ -125,8 +125,8 @@ namespace Client
                 System.Windows.Clipboard.SetDataObject(phoneNumber, true);
                 Thread.Sleep(100);
                 _virtualMouse.MoveTo(_positionMap[Position.PhoneNumberEdit]).LeftClick();
-                SendCtrlKey('A');
-                SendCtrlKey('V');
+                SendSelectAll();
+                SendPaste();
             }, countAttempts, Position.More);
         }
 
@@ -156,8 +156,8 @@ namespace Client
             {
                 _virtualMouse.MoveTo(_positionMap[Position.MessageEdit]).LeftClick();
                 System.Windows.Clipboard.SetText(message);
-                SendCtrlKey('A');
-                SendCtrlKey('V');
+                SendSelectAll();
+                SendPaste();
             }, countAttempts, Position.MessageEditBlock);
         }
 
@@ -175,12 +175,14 @@ namespace Client
             State = 8;
         }
 
-        private static void SendCtrlKey(char key)
+        private static void SendSelectAll()
         {
-            Win32Api.keybd_event(Win32Api.Keys.VK_CONTROL, 0, Win32Api.Keys.KEYEVENTF_KEYDOWN, 0);
-            Win32Api.keybd_event((byte)key, 0, Win32Api.Keys.KEYEVENTF_KEYDOWN, 0);
-            Win32Api.keybd_event((byte)key, 0, Win32Api.Keys.KEYEVENTF_KEYUP, 0);
-            Win32Api.keybd_event(Win32Api.Keys.VK_CONTROL, 0, Win32Api.Keys.KEYEVENTF_KEYUP, 0);
+            Win32Api.PressCtrlKey('A');
+        }
+
+        private static void SendPaste()
+        {
+            Win32Api.PressCtrlKey('V');
         }
 
         private static void SendEnter()

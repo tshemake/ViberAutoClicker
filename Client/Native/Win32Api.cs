@@ -194,5 +194,18 @@ namespace Client.Native
         [DllImport("gdi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern uint GetPixel(IntPtr hWnd, int nXPos, int nYPos);
         #endregion user32.dll
+
+        public static void PressKey(char key)
+        {
+            keybd_event((byte)key, 0, Keys.KEYEVENTF_KEYDOWN, 0);
+            keybd_event((byte)key, 0, Keys.KEYEVENTF_KEYUP, 0);
+        }
+
+        public static void PressCtrlKey(char key)
+        {
+            keybd_event(Keys.VK_CONTROL, 0, Keys.KEYEVENTF_KEYDOWN, 0);
+            PressKey(key);
+            keybd_event(Keys.VK_CONTROL, 0, Keys.KEYEVENTF_KEYUP, 0);
+        }
     }
 }
