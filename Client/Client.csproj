@@ -66,6 +66,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="API.cs" />
+    <Compile Include="Behaviors\FileDialogBehavior.cs" />
+    <Compile Include="Behaviors\FolderDialogBehavior.cs" />
+    <Compile Include="HelpPath.cs" />
     <Compile Include="Models\Config.cs" />
     <Compile Include="Models\Info.cs" />
     <Compile Include="Models\InfoDomain.cs" />
