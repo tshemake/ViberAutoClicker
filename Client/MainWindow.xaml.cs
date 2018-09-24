@@ -48,6 +48,8 @@ namespace Client
             Loaded -= MainWindow_Loaded;
             _viberProfiles = new ViberProfiles(GetViberProfilesInRoamingAppData());
             DataContext = new Config();
+            var db = new ViberDb(DefaultViberConfigDbInRoamingAppData());
+            ViberAccounts.ItemsSource = db.LoadAccounts();
         }
 
         private async void RegistrationNewAccount_Click(object sender, RoutedEventArgs e)
@@ -60,7 +62,7 @@ namespace Client
             var db = new ViberDb(DefaultViberConfigDbInRoamingAppData());
             db.OffAccounts();
             client.Run();
-            var bindingSource = await db.WaitNewAAccountAsync();
+            var bindingSource = await db.WaitNewAccountAsync();
             var obj = bindingSource;
             ViberAccounts.DataContext = obj;
             bindingSource = null;
