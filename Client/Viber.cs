@@ -29,26 +29,24 @@ namespace Client
 
         public static Viber Instance(string path)
         {
-                if (_instance == null)
-                {
-                    lock (SyncRoot)
-                    {
-                        if (_instance == null)
-                            _instance = new Viber(path);
-                    }
-                }
-                else
-                {
+            if (_instance == null)
+            {
                 lock (SyncRoot)
                 {
-                    if (_instance != null && path != _instance.ExePath)
-                    {
-                        _instance.ExePath = path;
-                        if (IsRunning()) _instance.Restart();
-                    }
+                    if (_instance == null)
+                        _instance = new Viber(path);
                 }
             }
-                return _instance;
+            else
+            {
+                lock (SyncRoot)
+                {
+                    if (string.IsNullOrEmpty(path) || path == _instance.ExePath) return _instance;
+                    _instance.ExePath = path;
+                    if (IsRunning()) _instance.Restart();
+                }
+            }
+            return _instance;
         }
 
         private Viber(string path)
