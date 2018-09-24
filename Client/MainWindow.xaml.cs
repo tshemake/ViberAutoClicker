@@ -34,7 +34,6 @@ namespace Client
         private static Guid NotRegisteredId = Guid.Parse("6B75DE8A-480E-4396-8368-E4ED2E851E9D");
 
         private ViberProfiles _viberProfiles;
-        private Viber _client;
 
         private CancellationTokenSource _cts;
 
@@ -49,6 +48,24 @@ namespace Client
             Loaded -= MainWindow_Loaded;
             _viberProfiles = new ViberProfiles(GetViberProfilesInRoamingAppData());
             DataContext = new Config();
+        }
+
+        private async void RegistrationNewAccount_Click(object sender, RoutedEventArgs e)
+        {
+            Config config = (Config)DataContext;
+            var client = Viber.Instance(config.ViberClientPath);
+            client.StopIfRunning();
+
+            RegistrationNewAccount.IsEnabled = false;
+            var db = new ViberDb(DefaultViberConfigDbInRoamingAppData());
+            db.OffAccounts();
+            client.Run();
+            var bindingSource = await db.WaitNewAAccountAsync();
+            var obj = bindingSource;
+            ViberAccounts.DataContext = obj;
+            bindingSource = null;
+            obj = null;
+            RegistrationNewAccount.IsEnabled = true;
         }
 
         private async void Start_Click(object sender, RoutedEventArgs e)
@@ -71,8 +88,8 @@ namespace Client
                 return;
             }
 
-            _client = new Viber(config.ViberClientPath);
-            _client.Close();
+            var client = Viber.Instance(config.ViberClientPath);
+            client.StopIfRunning();
             var profileDirs = GetViberProfilePathsInProfilesDirectoryPath();
             CopyProfilesToRoamingAppData(profileDirs);
             _viberProfiles.Reload(GetViberProfilesInRoamingAppData());
@@ -81,15 +98,15 @@ namespace Client
             CancellationToken _token = _cts.Token;
             Start.IsEnabled = false;
             Stop.IsEnabled = true;
-            await RunWork(_token);
+            await RunWork(client, _token);
         }
 
-        private async Task RunWork(CancellationToken token, int maxCountMessage = 50)
+        private async Task RunWork(Viber client, CancellationToken token, int maxCountMessage = 50)
         {
             Config config = (Config)DataContext;
 
             API.BaseAddress = config.ApiUrl;
-            _client.Run();
+            client.Run();
             int count = 0;
             while (true)
             {
@@ -114,23 +131,23 @@ namespace Client
                             {
                                 if (count >= maxCountMessage && _viberProfiles.Count > 1)
                                 {
-                                    _client.Close();
+                                    client.Close();
                                     ChangeViberProfileInRoamingAppData(_viberProfiles);
-                                    _client.Run();
+                                    client.Run();
                                     count = 1;
                                 }
 
                                 Guid statusId = Failure;
-                                if (_client.Send(task.Phone, domain.Message))
+                                if (client.Send(task.Phone, domain.Message))
                                 {
                                     count++;
                                 }
-                                switch (_client.State)
+                                switch (client.State)
                                 {
-                                    case 4:
+                                    case ViberState.ClickMessageMenu:
                                         statusId = NotRegisteredId;
                                         break;
-                                    case 7:
+                                    case ViberState.SendMessage:
                                         statusId = Sended;
                                         break;
                                     default:
@@ -167,6 +184,11 @@ namespace Client
         private static string DefaultViberProfileInRoamingAppData()
         {
             return System.IO.Path.Combine(HelpPath.RoamingAppData, "ViberPC");
+        }
+
+        private static string DefaultViberConfigDbInRoamingAppData()
+        {
+            return System.IO.Path.Combine(DefaultViberProfileInRoamingAppData(), "config.db");
         }
 
         private static void ChangeViberProfileInRoamingAppData(ViberProfiles viberProfiles)

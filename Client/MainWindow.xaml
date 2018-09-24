@@ -25,5 +25,17 @@
         <TextBox HorizontalAlignment="Left" Height="23" Margin="175,10,0,0" TextWrapping="Wrap" Text="{Binding Path=ApiUrl}" VerticalAlignment="Top" Width="607"/>
         <Label Content="API URL:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="160"/>
         <Button Name="Stop" Content="Стоп" HorizontalAlignment="Left" Margin="10,122,0,0" VerticalAlignment="Top" Width="75" Click="Stop_Click" IsEnabled="False"/>
+        <DataGrid Name="ViberAccounts" HorizontalAlignment="Left" Height="208" Margin="10,370,0,0" VerticalAlignment="Top" Width="472"/>
+        <Button Content="Зарегистрировать новый аккаунт" Name="RegistrationNewAccount" HorizontalAlignment="Left" Margin="10,149,0,0" VerticalAlignment="Top" Width="197" Click="RegistrationNewAccount_Click">
+            <Button.Style>
+                <Style>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=ViberClientPath}" Value="">
+                            <Setter Property="Button.IsEnabled" Value="false"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
     </Grid>
 </Window>

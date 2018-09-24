@@ -16,16 +16,44 @@ namespace Client
 {
     public class Viber : IDisposable
     {
-        private const string _processName = "Viber";
+        private static volatile Viber _instance;
+        private static readonly object SyncRoot = new object();
+
+        private const string ProcessName = "Viber";
 
         private readonly Mouse _virtualMouse;
 
-        public int State { get; private set; }
+        public ViberState State { get; private set; }
 
         public string ExePath { get; private set; }
 
-        public Viber(string path)
+        public static Viber Instance(string path)
         {
+                if (_instance == null)
+                {
+                    lock (SyncRoot)
+                    {
+                        if (_instance == null)
+                            _instance = new Viber(path);
+                    }
+                }
+                else
+                {
+                lock (SyncRoot)
+                {
+                    if (_instance != null && path != _instance.ExePath)
+                    {
+                        _instance.ExePath = path;
+                        if (IsRunning()) _instance.Restart();
+                    }
+                }
+            }
+                return _instance;
+        }
+
+        private Viber(string path)
+        {
+            State = ViberState.Init;
             ExePath = path;
             _virtualMouse = new Mouse(0, 0);
         }
@@ -33,43 +61,33 @@ namespace Client
         public bool Run()
         {
             StopIfRunning();
-
-            Process.Start(ExePath);
-            while (!IsOpen())
-            {
-                Thread.Sleep(500);
-            }
-            Thread.Sleep(3000);
-            IntPtr hWnd = FindWindow();
-
-            StringBuilder lpString = new StringBuilder(Win32Api.GetWindowTextLength(hWnd) + 1);
-            Win32Api.GetWindowText(hWnd, lpString, lpString.Capacity);
-            if (!Regex.Match(lpString.ToString(), @"^Viber \+([0-9]{11})$").Success)
+            var hWnd = Start();
+            if (hWnd == IntPtr.Zero)
             {
                 return false;
             }
 
             SetWindowSize(hWnd);
-            State = 0;
+            State = ViberState.Run;
             return true;
         }
 
         public bool Send(string phoneNumber, string message)
         {
             if (!GoToMore()) return false;
-            State = 1;
+            State = ViberState.GoToMore;
             if (!ClickPhoneNumberMenu()) return false;
-            State = 2;
+            State = ViberState.ClickPhoneNumberMenu;
             if (!EnterPhoneNumber(phoneNumber)) return false;
-            State = 3;
-            if (!ClickMessageButton()) return false;
-            State = 4;
+            State = ViberState.EnterPhoneNumber;
+            if (!ClickMessageMenu()) return false;
+            State = ViberState.ClickMessageMenu;
             if (!IsEnableSendMessage()) return false;
-            State = 5;
+            State = ViberState.IsEnableSendMessage;
             if (!EnterMessage(message)) return false;
-            State = 6;
+            State = ViberState.EnterMessage;
             if (!SendMessage()) return false;
-            State = 7;
+            State = ViberState.SendMessage;
             return true;
         }
 
@@ -129,7 +147,7 @@ namespace Client
             }, countAttempts, Position.More);
         }
 
-        public bool ClickMessageButton(int countAttempts = 5)
+        public bool ClickMessageMenu(int countAttempts = 5)
         {
             return Do(delegate ()
             {
@@ -171,7 +189,6 @@ namespace Client
         public void Close()
         {
             StopIfRunning();
-            State = 8;
         }
 
         private static void SendSelectAll()
@@ -205,13 +222,43 @@ namespace Client
             return Win32Api.SetForegroundWindow(hWnd);
         }
 
-        private static void StopIfRunning()
+        public IntPtr Start()
+        {
+            Process.Start(ExePath);
+            while (!IsOpen())
+            {
+                Thread.Sleep(500);
+            }
+
+            Thread.Sleep(3000);
+
+            var hWnd = FindWindow();
+
+            var lpString = new StringBuilder(Win32Api.GetWindowTextLength(hWnd) + 1);
+            Win32Api.GetWindowText(hWnd, lpString, lpString.Capacity);
+            if (Regex.Match(lpString.ToString(), @"^Viber").Success)
+            {
+                return IntPtr.Zero;
+            }
+
+            State = ViberState.Start;
+            return hWnd;
+        }
+
+        public IntPtr Restart()
+        {
+            StopIfRunning();
+
+            return Start();
+        }
+
+        public void StopIfRunning()
         {
             while (IsRunning())
             {
                 try
                 {
-                    Process[] processes = Process.GetProcessesByName(_processName);
+                    Process[] processes = Process.GetProcessesByName(ProcessName);
                     foreach (var process in processes)
                     {
                         foreach (var hWnd in GetRootWindowsOfProcess(process.Id))
@@ -225,16 +272,17 @@ namespace Client
                 catch
                 { }
             }
+            State = ViberState.Stop;
         }
 
-        private static bool IsOpen()
+        public static bool IsOpen()
         {
             return Win32Api.FindWindow("Qt5QWindowOwnDCIcon", IntPtr.Zero) != IntPtr.Zero;
         }
 
         private static bool IsRunning()
         {
-            return Process.GetProcessesByName(_processName).Length > 0;
+            return Process.GetProcessesByName(ProcessName).Length > 0;
         }
 
         private static IntPtr FindWindow(int countAttempts = 3)
