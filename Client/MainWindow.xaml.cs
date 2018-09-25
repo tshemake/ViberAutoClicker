@@ -43,13 +43,13 @@ namespace Client
             Loaded += MainWindow_Loaded;
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             Loaded -= MainWindow_Loaded;
             _viberProfiles = new ViberProfiles(GetViberProfilesInRoamingAppData());
             DataContext = new Config();
             var db = new ViberDb(DefaultViberConfigDbInRoamingAppData());
-            ViberAccounts.ItemsSource = db.LoadAccounts();
+            ViberAccounts.ItemsSource = await db.LoadAccounts();
         }
 
         private async void RegistrationNewAccount_Click(object sender, RoutedEventArgs e)

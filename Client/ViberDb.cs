@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
+using System.Data.Entity;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Client.Database;
+using Client.Database.Models;
 
 namespace Client
 {
@@ -15,18 +19,19 @@ namespace Client
     {
         private BindingSource _bs = new BindingSource();
         private DataTable _dt = new DataTable();
-        private readonly string _connectionString;
+        private readonly string _dataSource;
+        private string ConnectionString => "Data Source = " + _dataSource;
 
         public ViberDb(string configDbPath)
         {
-            _connectionString = "Data Source = " + configDbPath;
+            _dataSource = configDbPath;
         }
 
         public void OffAccounts()
         {
             try
             {
-                using (var sqLiteConnection = new SQLiteConnection(_connectionString))
+                using (var sqLiteConnection = new SQLiteConnection(ConnectionString))
                 {
                     sqLiteConnection.Open();
                     using (var sqLiteCommand = new SQLiteCommand(sqLiteConnection))
@@ -47,7 +52,7 @@ namespace Client
         {
             try
             {
-                using (var sqLiteConnection = new SQLiteConnection(_connectionString))
+                using (var sqLiteConnection = new SQLiteConnection(ConnectionString))
                 {
                     sqLiteConnection.Open();
                     using (var sqLiteCommand = new SQLiteCommand(sqLiteConnection))
@@ -85,10 +90,10 @@ namespace Client
 
         public string CurrentAccounts()
         {
-            var result = String.Empty;
+            var result = string.Empty;
             try
             {
-                using (var sqLiteConnection = new SQLiteConnection(_connectionString))
+                using (var sqLiteConnection = new SQLiteConnection(ConnectionString))
                 {
                     sqLiteConnection.Open();
                     using (var sqLiteCommand = new SQLiteCommand(sqLiteConnection))
@@ -111,7 +116,7 @@ namespace Client
             return result;
         }
 
-        public BindingSource LoadAccounts()
+        public async Task<List<Account>> LoadAccounts()
         {
             try
             {
@@ -122,12 +127,16 @@ namespace Client
                 var str = "№";
                 column.ColumnName = str;
                 columns.Add(column);
-                var factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
+                using (var context = new ViberConfigDbContext(_dataSource))
+                {
+                    return await context.Accounts.ToListAsync();
+                }
+                    var factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
                 using (var sqLiteConnection = (SQLiteConnection)factory?.CreateConnection())
                 {
                     if (sqLiteConnection != null)
                     {
-                        sqLiteConnection.ConnectionString = _connectionString;
+                        sqLiteConnection.ConnectionString = ConnectionString;
                         sqLiteConnection.Open();
                         using (var sqLiteCommand = new SQLiteCommand(sqLiteConnection))
                         {
@@ -144,9 +153,9 @@ namespace Client
             catch
             {
                 // ignored
+                throw;
             }
 
-            return _bs;
         }
     }
 }
