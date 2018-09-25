@@ -42,5 +42,16 @@
                 </Style>
             </Button.Style>
         </Button>
+        <Button Content="Сменить аккаунт" Name="ChangeAccount" HorizontalAlignment="Left" Margin="10,176,0,0" VerticalAlignment="Top" Width="197" Click="ChangeAccount_Click">
+            <Button.Style>
+                <Style>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=ViberClientPath}" Value="">
+                            <Setter Property="Button.IsEnabled" Value="false"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
     </Grid>
 </Window>

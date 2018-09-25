@@ -49,25 +49,36 @@ namespace Client
             _viberProfiles = new ViberProfiles(GetViberProfilesInRoamingAppData());
             DataContext = new Config();
             var db = new ViberDb(DefaultViberConfigDbInRoamingAppData());
-            ViberAccounts.ItemsSource = await db.LoadAccounts();
+            ViberAccounts.ItemsSource = await db.LoadAccountsAsync();
         }
 
         private async void RegistrationNewAccount_Click(object sender, RoutedEventArgs e)
         {
-            Config config = (Config)DataContext;
+            var config = (Config)DataContext;
             var client = Viber.Instance(config.ViberClientPath);
-            client.StopIfRunning();
+            client.Close();
 
             RegistrationNewAccount.IsEnabled = false;
             var db = new ViberDb(DefaultViberConfigDbInRoamingAppData());
-            db.OffAccounts();
+            await db.OffAccountsAsync();
+
             client.Run();
-            var bindingSource = await db.WaitNewAccountAsync();
-            var obj = bindingSource;
-            ViberAccounts.DataContext = obj;
-            bindingSource = null;
-            obj = null;
+            ViberAccounts.DataContext = await db.WaitNewAccountAsync();
             RegistrationNewAccount.IsEnabled = true;
+        }
+
+        private async void ChangeAccount_Click(object sender, EventArgs e)
+        {
+            var config = (Config)DataContext;
+            var client = Viber.Instance(config.ViberClientPath);
+            client.Close();
+
+            ChangeAccount.IsEnabled = false;
+            var db = new ViberDb(DefaultViberConfigDbInRoamingAppData());
+            var index = await db.GetNextAccountAsync();
+
+            client.Run();
+            ChangeAccount.IsEnabled = true;
         }
 
         private async void Start_Click(object sender, RoutedEventArgs e)

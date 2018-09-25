@@ -17,22 +17,17 @@ namespace Client.Database.Models
     [Table("Accounts")]
     public class Account
     {
-        [StringLength(100)]
+        [MaxLength(100)]
         [Column("ID")]
         public string Id { get; set; }
-        [Required]
-        [StringLength(100)]
+        [MaxLength(100)]
         public string DeviceKey { get; set; }
-        [StringLength(100)]
+        [MaxLength(100)]
         public string Token { get; set; }
-        [StringLength(1000)]
+        [MaxLength(1000)]
         public string Email { get; set; }
-        [StringLength(100)]
+        [MaxLength(100)]
         public string NickName { get; set; }
-        [StringLength(100)]
-        public string DownloadID { get; set; }
-        [StringLength(2000)]
-        public string PhotoPath { get; set; }
         public bool IsDefault { get; set; } = false;
         public bool IsAutoSignIn { get; set; } = false;
         public bool IsValid { get; set; } = false;
