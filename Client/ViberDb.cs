@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
 using System.Data.Entity;
+using System.Data.Entity.Migrations;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
@@ -73,6 +74,15 @@ namespace Client
             }
         }
 
+        public async Task SaveAccountAsync(Account account)
+        {
+            using (var context = new ViberConfigDbContext(_dataSource))
+            {
+                context.Accounts.AddOrUpdate(account);
+                await context.SaveChangesAsync();
+            }
+        }
+
         public async Task<int> GetNextAccountAsync()
         {
             var resultIndex = 0;
@@ -95,7 +105,6 @@ namespace Client
                     accounts[resultIndex].IsDefault = true;
                     await context.SaveChangesAsync();
                 }
-
             }
             catch
             {
@@ -124,13 +133,29 @@ namespace Client
             return result;
         }
 
-        public async Task<List<Account>> LoadAccountsAsync()
+        public BindingList<Account> LoadAccounts()
         {
             try
             {
                 using (var context = new ViberConfigDbContext(_dataSource))
                 {
-                    return await context.Accounts.ToListAsync();
+                    context.Accounts.Load();
+                    return context.Accounts.Local.ToBindingList();
+                }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public int CountAccount()
+        {
+            try
+            {
+                using (var context = new ViberConfigDbContext(_dataSource))
+                {
+                    return context.Accounts.Count();
                 }
             }
             catch

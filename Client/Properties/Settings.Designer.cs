@@ -58,5 +58,17 @@ namespace Client.Properties {
                 this["ApiUrl"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        public int AccountChangeAfter {
+            get {
+                return ((int)(this["AccountChangeAfter"]));
+            }
+            set {
+                this["AccountChangeAfter"] = value;
+            }
+        }
     }
 }

@@ -22,13 +22,14 @@
         </Button>
         <TextBlock HorizontalAlignment="Left" Text="{Binding Path=ViberClientPath, UpdateSourceTrigger=PropertyChanged}" Margin="175,71,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="307"/>
         <Button Name="Start" Content="Старт" HorizontalAlignment="Left" Margin="10,95,0,0" VerticalAlignment="Top" Width="75" Click="Start_Click"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="175,10,0,0" TextWrapping="Wrap" Text="{Binding Path=ApiUrl}" VerticalAlignment="Top" Width="607"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="175,10,0,0" TextWrapping="Wrap" Text="{Binding Path=ApiUrl}" VerticalAlignment="Top" Width="307"/>
         <Label Content="API URL:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="160"/>
         <Button Name="Stop" Content="Стоп" HorizontalAlignment="Left" Margin="10,122,0,0" VerticalAlignment="Top" Width="75" Click="Stop_Click" IsEnabled="False"/>
-        <DataGrid Name="ViberAccounts" HorizontalAlignment="Left" AutoGenerateColumns="False" Height="208" Margin="10,370,0,0" VerticalAlignment="Top" Width="472">
+        <DataGrid Name="ViberAccounts" HorizontalAlignment="Left" AutoGenerateColumns="False" Height="208" Margin="10,370,0,0" 
+                  CanUserAddRows="False" CanUserDeleteRows="False" VerticalAlignment="Top" Width="472" 
+                  ItemsSource="{Binding Accounts}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Телефон" Binding="{Binding Id}"  IsReadOnly="True"/>
-                <DataGridTextColumn Header="Логин" Binding="{Binding NickName}"  IsReadOnly="True"/>
+                <DataGridTextColumn Header="Телефон" Binding="{Binding Id}" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
         <Button Content="Зарегистрировать новый аккаунт" Name="RegistrationNewAccount" HorizontalAlignment="Left" Margin="10,149,0,0" VerticalAlignment="Top" Width="197" Click="RegistrationNewAccount_Click">
@@ -53,5 +54,12 @@
                 </Style>
             </Button.Style>
         </Button>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="146,206,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="{Binding Path=AccountChangeAfter}">
+            <i:Interaction.Behaviors>
+                <Behavior:TextBoxInputBehavior InputMode="DecimalInput"/>
+                <Behavior:TextBoxInputRegExBehaviour RegularExpression="^[0-9]+$" MaxLength="50" />
+            </i:Interaction.Behaviors>
+        </TextBox>
+        <Label Content="Менять аккаунт после" HorizontalAlignment="Left" Margin="10,203,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>

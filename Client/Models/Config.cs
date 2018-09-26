@@ -51,11 +51,27 @@ namespace Client.Models
             }
         }
 
+        private int _accountChangeAftere;
+        public int AccountChangeAfter
+        {
+            get
+            {
+                return _accountChangeAftere;
+            }
+            set
+            {
+                _accountChangeAftere = value;
+                Properties.Settings.Default.AccountChangeAfter = value;
+                Properties.Settings.Default.Save();
+            }
+        }
+
         public Config()
         {
             _profilePath = Properties.Settings.Default.ProfilesDirectoryPath;
             _viberClientPath = Properties.Settings.Default.ViberClientPath;
             _apiUrl = Properties.Settings.Default.ApiUrl;
+            _accountChangeAftere = Properties.Settings.Default.AccountChangeAfter;
         }
     }
 }

@@ -20,6 +20,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Client.Models;
 using Client.Native;
+using Client.ViewModels;
 
 namespace Client
 {
@@ -33,8 +34,6 @@ namespace Client
         private static Guid Sended = Guid.Parse("7e2f259b-8c03-4ba9-8363-5324466c475e");
         private static Guid NotRegisteredId = Guid.Parse("6B75DE8A-480E-4396-8368-E4ED2E851E9D");
 
-        private ViberProfiles _viberProfiles;
-
         private CancellationTokenSource _cts;
 
         public MainWindow()
@@ -43,12 +42,12 @@ namespace Client
             Loaded += MainWindow_Loaded;
         }
 
-        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             Loaded -= MainWindow_Loaded;
             DataContext = new Config();
             var db = new ViberDb(DefaultViberConfigDbInRoamingAppData());
-            ViberAccounts.ItemsSource = await db.LoadAccountsAsync();
+            ViberAccounts.DataContext = new AccountViewModel(db);
         }
 
         private async void RegistrationNewAccount_Click(object sender, RoutedEventArgs e)
@@ -86,7 +85,7 @@ namespace Client
 
         private async void Start_Click(object sender, RoutedEventArgs e)
         {
-            Config config = (Config)DataContext;
+            var config = (Config)DataContext;
 
             if (string.IsNullOrEmpty(config.ProfilePath) || !Directory.Exists(config.ProfilePath))
             {
@@ -103,24 +102,29 @@ namespace Client
                 System.Windows.MessageBox.Show("Укажите URL сервера");
                 return;
             }
+            if (config.AccountChangeAfter <= 0)
+            {
+                System.Windows.MessageBox.Show("Укажите количество отправленных сообщений, после которых меняется аккаунт");
+                return;
+            }
 
             var client = Viber.Instance(config.ViberClientPath);
             client.StopIfRunning();
             ReplaceDefaultViberProfileInRoamingAppData(config.ProfilePath);
             _cts = new CancellationTokenSource();
-            CancellationToken _token = _cts.Token;
+            var token = _cts.Token;
             Start.IsEnabled = false;
             Stop.IsEnabled = true;
-            await RunWork(client, _token);
+            await RunWork(client, token);
         }
 
-        private async Task RunWork(Viber client, CancellationToken token, int maxCountMessage = 50)
+        private async Task RunWork(Viber client, CancellationToken token)
         {
-            Config config = (Config)DataContext;
+            var config = (Config)DataContext;
 
             API.BaseAddress = config.ApiUrl;
             client.Run();
-            int count = 0;
+            var count = 0;
             while (true)
             {
                 try
@@ -130,8 +134,8 @@ namespace Client
                         break;
                     }
 
-                    InfoTask tasks = await API.GetTasksAsync();
-                    ResponeTask responeTask = new ResponeTask
+                    var tasks = await API.GetTasksAsync();
+                    var responeTask = new ResponeTask
                     {
                         Tasks = new List<Result>()
                     };
@@ -142,7 +146,7 @@ namespace Client
                         {
                             foreach (var task in domain.Tasks)
                             {
-                                if (count >= maxCountMessage && _viberProfiles.Count > 1)
+                                if (CountViberProfile() > 1 && count >= config.AccountChangeAfter)
                                 {
                                     client.Close();
                                     await SelectNextViberProfileAsync();
@@ -150,7 +154,7 @@ namespace Client
                                     count = 1;
                                 }
 
-                                Guid statusId = Failure;
+                                Guid statusId;
                                 if (client.Send(task.Phone, domain.Message))
                                 {
                                     count++;
@@ -163,9 +167,19 @@ namespace Client
                                     case ViberState.SendMessage:
                                         statusId = Sended;
                                         break;
-                                    default:
+                                    case ViberState.Init:
+                                    case ViberState.Start:
+                                    case ViberState.Stop:
+                                    case ViberState.Run:
+                                    case ViberState.GoToMore:
+                                    case ViberState.ClickPhoneNumberMenu:
+                                    case ViberState.EnterPhoneNumber:
+                                    case ViberState.IsEnableSendMessage:
+                                    case ViberState.EnterMessage:
                                         statusId = Failure;
                                         break;
+                                    default:
+                                        throw new ArgumentOutOfRangeException();
                                 }
                                 responeTask.Tasks.Add(new Result
                                 {
@@ -198,6 +212,12 @@ namespace Client
         { 
             var db = new ViberDb(DefaultViberConfigDbInRoamingAppData());
             var index = await db.GetNextAccountAsync();
+        }
+
+        private int CountViberProfile()
+        {
+            var db = new ViberDb(DefaultViberConfigDbInRoamingAppData());
+            return db.CountAccount();
         }
 
         private static string DefaultViberProfileName()
