@@ -74,12 +74,31 @@ namespace Client
             }
         }
 
-        public async Task SaveAccountAsync(Account account)
+        public async Task SaveAccountAsync(Account entity)
         {
             using (var context = new ViberConfigDbContext(_dataSource))
             {
-                context.Accounts.AddOrUpdate(account);
-                await context.SaveChangesAsync();
+                var account = context.Accounts.Find(entity.Id);
+                if (account != null)
+                {
+                    account.IsDefault = entity.IsDefault;
+                    account.IsAutoSignIn = entity.IsAutoSignIn;
+                    account.DeviceKey = entity.DeviceKey;
+                    account.Email = entity.Email;
+                    account.IsValid = entity.IsValid;
+                    account.NickName = entity.NickName;
+                    account.TimeStamp = entity.TimeStamp;
+                    account.Token = entity.Token;
+                    await context.SaveChangesAsync();
+                }
+            }
+        }
+
+        public void SaveChanges()
+        {
+            using (var context = new ViberConfigDbContext(_dataSource))
+            {
+                context.SaveChangesAsync();
             }
         }
 

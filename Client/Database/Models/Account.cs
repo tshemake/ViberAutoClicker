@@ -17,6 +17,7 @@ namespace Client.Database.Models
     [Table("Accounts")]
     public class Account : INotifyPropertyChanged
     {
+        private string _id;
         private string _deviceKey;
         private string _token;
         private string _email;
@@ -27,7 +28,15 @@ namespace Client.Database.Models
         private int _timeStamp = 0;
         [MaxLength(100)]
         [Column("ID")]
-        public string Id { get; set; }
+        public string Id
+        {
+            get { return _id; }
+            set
+            {
+                _id = value;
+                OnPropertyChanged("Id");
+            }
+        }
         [MaxLength(100)]
         public string DeviceKey
         {
