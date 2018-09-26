@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="618" Width="500" Left="1091" Top="0">
     <Grid>
-        <Button Content="Выбор папки с профилями" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="160">
+        <Button Content="Выбор папки с профилем" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="160">
             <i:Interaction.Behaviors>
                 <Behavior:FolderDialogBehavior FolderName="{Binding ProfilePath, Mode=TwoWay}"/>
             </i:Interaction.Behaviors>
