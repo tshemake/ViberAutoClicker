@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -206,6 +207,23 @@ namespace Client.Native
             keybd_event(Keys.VK_CONTROL, 0, Keys.KEYEVENTF_KEYDOWN, 0);
             PressKey(key);
             keybd_event(Keys.VK_CONTROL, 0, Keys.KEYEVENTF_KEYUP, 0);
+        }
+
+        public static POINT GetCursorPosition()
+        {
+            GetCursorPos(out var lpPoint);
+            return lpPoint;
+        }
+
+        public static Color GetPixelColor(POINT point)
+        {
+            IntPtr hdc = Win32Api.GetDC(IntPtr.Zero);
+            uint pixel = Win32Api.GetPixel(hdc, point.X, point.Y);
+            Win32Api.ReleaseDC(IntPtr.Zero, hdc);
+            Color color = Color.FromArgb((int)(pixel & 0x000000FF),
+                (int)(pixel & 0x0000FF00) >> 8,
+                (int)(pixel & 0x00FF0000) >> 16);
+            return color;
         }
     }
 }

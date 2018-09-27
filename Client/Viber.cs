@@ -72,6 +72,8 @@ namespace Client
 
         public bool Send(string phoneNumber, string message)
         {
+            if (IsMessageSyncShow()) CloseMessageSync();
+
             if (!GoToMore()) return false;
             State = ViberState.GoToMore;
             if (!ClickPhoneNumberMenu()) return false;
@@ -158,7 +160,7 @@ namespace Client
             SetForegroundWindow();
             Thread.Sleep(600);
             Color? color = GetPixelColor(_positionMap[Position.MessageEditBlock]);
-            if (!color.HasValue || color.Value.ToArgb() != _positionMap[Position.MessageEditBlock].Argb)
+            if (!color.HasValue)
             {
                 return false;
             }
@@ -234,7 +236,7 @@ namespace Client
 
             var lpString = new StringBuilder(Win32Api.GetWindowTextLength(hWnd) + 1);
             Win32Api.GetWindowText(hWnd, lpString, lpString.Capacity);
-            if (Regex.Match(lpString.ToString(), @"^Viber").Success)
+            if (!lpString.ToString().Contains("Viber"))
             {
                 return IntPtr.Zero;
             }
@@ -273,6 +275,20 @@ namespace Client
             State = ViberState.Stop;
         }
 
+        public bool IsMessageSyncShow()
+        {
+            var color = GetPixelColor(_positionMap[Position.MessageSyncTitle]);
+            return color.HasValue && color.Value.ToArgb() == _positionMap[Position.MessageSyncTitle].Argb;
+        }
+
+        public void CloseMessageSync()
+        {
+            Thread.Sleep(500);
+            _virtualMouse.MoveTo(_positionMap[Position.MessageSyncClose]).LeftClick();
+            Thread.Sleep(500);
+            _virtualMouse.MoveTo(_positionMap[Position.MessageSyncOk]).LeftClick();
+        }
+
         public static bool IsOpen()
         {
             return Win32Api.FindWindow("Qt5QWindowOwnDCIcon", IntPtr.Zero) != IntPtr.Zero;
@@ -305,7 +321,6 @@ namespace Client
             }
             IntPtr hdc = Win32Api.GetDC(IntPtr.Zero);
             uint pixel = Win32Api.GetPixel(hdc, point.X, point.Y);
-            if (pixel == 0xFFFFFF) return null;
             Win32Api.ReleaseDC(IntPtr.Zero, hdc);
             Color? color = Color.FromArgb((int)(pixel & 0x000000FF),
                             (int)(pixel & 0x0000FF00) >> 8,
@@ -373,8 +388,11 @@ namespace Client
             { Position.PhoneNumberEdit, new Point { X = 163, Y = 163, Argb = -197380 } },
             { Position.MessageButton, new Point { X = 230, Y = 520, Argb = -10134357 } },
             { Position.MessageEdit, new Point { X = 600, Y = 583, Argb = -2235934 } },
-            { Position.MessageEditBlock, new Point { X = 310, Y = 583, Argb = -1315346 } },
-            { Position.DialogChat, new Point { X = 320, Y = 200, Argb = -2235934 } }
+            { Position.MessageEditBlock, new Point { X = 310, Y = 583, Argb = -855053 } },
+            { Position.DialogChat, new Point { X = 320, Y = 200, Argb = -1 } },
+            { Position.MessageSyncTitle, new Point { X = 692, Y = 186, Argb = -8489518 } },
+            { Position.MessageSyncClose, new Point { X = 339, Y = 184, Argb = -1 } },
+            { Position.MessageSyncOk, new Point { X = 619, Y = 396, Argb = -1 } }
         };
 
         #region Dispose pattern

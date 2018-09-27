@@ -89,6 +89,7 @@
     <Compile Include="Behaviors\TextBoxInputBehavior.cs" />
     <Compile Include="Behaviors\TextBoxInputRegExBehaviour.cs" />
     <Compile Include="Database\ViberConfigDbConfiguration .cs" />
+    <Compile Include="Helpers\DispatcherHelper.cs" />
     <Compile Include="HelpPath.cs" />
     <Compile Include="Model.Context.cs">
       <AutoGen>True</AutoGen>

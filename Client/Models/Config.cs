@@ -66,12 +66,28 @@ namespace Client.Models
             }
         }
 
+        private int _maxCountMessage;
+        public int MaxCountMessage
+        {
+            get
+            {
+                return _maxCountMessage;
+            }
+            set
+            {
+                _maxCountMessage = value;
+                Properties.Settings.Default.MaxCountMessage = value;
+                Properties.Settings.Default.Save();
+            }
+        }
+
         public Config()
         {
             _profilePath = Properties.Settings.Default.ProfilesDirectoryPath;
             _viberClientPath = Properties.Settings.Default.ViberClientPath;
             _apiUrl = Properties.Settings.Default.ApiUrl;
             _accountChangeAftere = Properties.Settings.Default.AccountChangeAfter;
+            _maxCountMessage = Properties.Settings.Default.MaxCountMessage;
         }
     }
 }

@@ -102,14 +102,14 @@ namespace Client
             }
         }
 
-        public async Task<int> GetNextAccountAsync()
+        public async Task<int> GetNextActiveAccountAsync()
         {
             var resultIndex = 0;
             try
             {
                 using (var context = new ViberConfigDbContext(_dataSource))
                 {
-                    var accounts = context.Accounts.ToList();
+                    var accounts = context.Accounts.Where(a => a.IsAutoSignIn).ToList();
                     var index = accounts.FindIndex(a => a.IsDefault);
                     if (index == accounts.Count - 1)
                     {
@@ -168,13 +168,13 @@ namespace Client
             }
         }
 
-        public int CountAccount()
+        public int CountActiveAccount()
         {
             try
             {
                 using (var context = new ViberConfigDbContext(_dataSource))
                 {
-                    return context.Accounts.Count();
+                    return context.Accounts.Count(a => a.IsAutoSignIn);
                 }
             }
             catch

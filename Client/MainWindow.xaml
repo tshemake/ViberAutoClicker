@@ -25,7 +25,7 @@
         <TextBox HorizontalAlignment="Left" Height="23" Margin="175,10,0,0" TextWrapping="Wrap" Text="{Binding Path=ApiUrl}" VerticalAlignment="Top" Width="307"/>
         <Label Content="API URL:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="160"/>
         <Button Name="Stop" Content="Стоп" HorizontalAlignment="Left" Margin="10,122,0,0" VerticalAlignment="Top" Width="75" Click="Stop_Click" IsEnabled="False"/>
-        <DataGrid Name="ViberAccounts" HorizontalAlignment="Left" AutoGenerateColumns="False" Height="208" Margin="10,370,0,0" 
+        <DataGrid Name="ViberAccounts" HorizontalAlignment="Left" AutoGenerateColumns="False" Height="187" Margin="10,370,0,0" 
                   CanUserAddRows="False" CanUserDeleteRows="False" VerticalAlignment="Top" Width="472" 
                   ItemsSource="{Binding Accounts}">
             <DataGrid.Columns>
@@ -62,5 +62,13 @@
             </i:Interaction.Behaviors>
         </TextBox>
         <Label Content="Менять аккаунт после" HorizontalAlignment="Left" Margin="10,203,0,0" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,562,0,0" TextWrapping="Wrap" x:Name="Status" VerticalAlignment="Top" Width="472"/>
+        <Label Content="Размер пакета" HorizontalAlignment="Left" Margin="10,234,0,0" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="105,237,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="{Binding Path=MaxCountMessage}">
+            <i:Interaction.Behaviors>
+                <Behavior:TextBoxInputBehavior InputMode="DecimalInput"/>
+                <Behavior:TextBoxInputRegExBehaviour RegularExpression="^[0-9]+$" MaxLength="50" />
+            </i:Interaction.Behaviors>
+        </TextBox>
     </Grid>
 </Window>

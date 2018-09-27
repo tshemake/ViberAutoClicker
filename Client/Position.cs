@@ -21,6 +21,9 @@ namespace Client
         MessageButton,
         MessageEdit,
         MessageEditBlock,
-        DialogChat
+        DialogChat,
+        MessageSyncTitle,
+        MessageSyncClose,
+        MessageSyncOk
     }
 }

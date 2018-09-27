@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -13,11 +14,13 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Client.Helpers;
 using Client.Models;
 using Client.Native;
 using Client.ViewModels;
@@ -34,6 +37,8 @@ namespace Client
         private static Guid Sended = Guid.Parse("7e2f259b-8c03-4ba9-8363-5324466c475e");
         private static Guid NotRegisteredId = Guid.Parse("6B75DE8A-480E-4396-8368-E4ED2E851E9D");
 
+        private readonly BackgroundWorker _worker = new BackgroundWorker();
+
         private CancellationTokenSource _cts;
 
         public MainWindow()
@@ -45,6 +50,8 @@ namespace Client
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             Loaded -= MainWindow_Loaded;
+            _worker.DoWork += Worker_DoWork;
+            _worker.RunWorkerAsync();
             DataContext = new Config();
             var db = new ViberDb(DefaultViberConfigDbInRoamingAppData());
             ViberAccounts.DataContext = new AccountViewModel(db);
@@ -134,7 +141,7 @@ namespace Client
                         break;
                     }
 
-                    var tasks = await API.GetTasksAsync();
+                    var tasks = await API.GetTasksAsync(1);
                     var responeTask = new ResponeTask
                     {
                         Tasks = new List<Result>()
@@ -211,13 +218,13 @@ namespace Client
         private async Task SelectNextViberProfileAsync()
         { 
             var db = new ViberDb(DefaultViberConfigDbInRoamingAppData());
-            var index = await db.GetNextAccountAsync();
+            var index = await db.GetNextActiveAccountAsync();
         }
 
         private int CountViberProfile()
         {
             var db = new ViberDb(DefaultViberConfigDbInRoamingAppData());
-            return db.CountAccount();
+            return db.CountActiveAccount();
         }
 
         private static string DefaultViberProfileName()
@@ -266,10 +273,10 @@ namespace Client
             if (Directory.Exists(DefaultViberProfileInRoamingAppData()))
             {
                 oldViberProfilePath = $"{DefaultViberProfileInRoamingAppData()}_{Guid.NewGuid()}";
-                Directory.Move(DefaultViberProfileInRoamingAppData(), oldViberProfilePath);
+                //Directory.Move(DefaultViberProfileInRoamingAppData(), oldViberProfilePath);
             }
 
-            HelpPath.DirectoryCopy(profilePath, System.IO.Path.Combine(HelpPath.RoamingAppData, DefaultViberProfileInRoamingAppData()));
+            //HelpPath.DirectoryCopy(profilePath, System.IO.Path.Combine(HelpPath.RoamingAppData, DefaultViberProfileInRoamingAppData()));
             return oldViberProfilePath;
         }
 
@@ -287,6 +294,22 @@ namespace Client
         {
             base.OnClosed(e);
             DataContext = null;
+        }
+
+        private void Worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            while (true)
+            {
+                DispatcherHelper.CheckBeginInvokeOnUI(
+                    (Action)(() =>
+                        {
+                            var position = Native.Win32Api.GetCursorPosition();
+                            var color = Native.Win32Api.GetPixelColor(position);
+                            Status.Text = $"[{position.X} - {position.Y}] => {color}({color.ToArgb()})";
+                        }
+                    ));
+                Thread.Sleep(100);
+            }
         }
     }
 }
