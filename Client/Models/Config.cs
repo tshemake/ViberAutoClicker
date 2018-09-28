@@ -81,6 +81,21 @@ namespace Client.Models
             }
         }
 
+        private int _pauseBetweenTasks;
+        public int PauseBetweenTasks
+        {
+            get
+            {
+                return _pauseBetweenTasks;
+            }
+            set
+            {
+                _pauseBetweenTasks = value;
+                Properties.Settings.Default.PauseBetweenTasks = value;
+                Properties.Settings.Default.Save();
+            }
+        }
+
         public Config()
         {
             _profilePath = Properties.Settings.Default.ProfilesDirectoryPath;
@@ -88,6 +103,7 @@ namespace Client.Models
             _apiUrl = Properties.Settings.Default.ApiUrl;
             _accountChangeAftere = Properties.Settings.Default.AccountChangeAfter;
             _maxCountMessage = Properties.Settings.Default.MaxCountMessage;
+            _pauseBetweenTasks = Properties.Settings.Default.PauseBetweenTasks;
         }
     }
 }

@@ -26,10 +26,10 @@ namespace Client
             return task;
         }
 
-        public static async Task<bool> UpdateTasksAsync(ResponeTask responeTask)
+        public static async Task<bool> UpdateTasksAsync(ResponseTask responseTask)
         {
             Uri baseUri = new Uri(BaseAddress);
-            HttpResponseMessage response = await _client.PostAsJsonAsync(new Uri(baseUri, "api/tasks/update"), responeTask);
+            HttpResponseMessage response = await _client.PostAsJsonAsync(new Uri(baseUri, "api/tasks/update"), responseTask);
             if (response.IsSuccessStatusCode)
             {
                 return true;

@@ -88,6 +88,7 @@
     <Compile Include="Behaviors\FolderDialogBehavior.cs" />
     <Compile Include="Behaviors\TextBoxInputBehavior.cs" />
     <Compile Include="Behaviors\TextBoxInputRegExBehaviour.cs" />
+    <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Database\ViberConfigDbConfiguration .cs" />
     <Compile Include="Helpers\DispatcherHelper.cs" />
     <Compile Include="HelpPath.cs" />
@@ -110,14 +111,13 @@
     <Compile Include="Mouse.cs" />
     <Compile Include="Native\Win32Api.cs" />
     <Compile Include="Position.cs" />
-    <Compile Include="Models\ResponeTask.cs" />
+    <Compile Include="Models\ResponseTask.cs" />
     <Compile Include="Models\Result.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Viber.cs" />
     <Compile Include="ViberProfiles.cs" />
     <Compile Include="ViberState.cs" />
-    <Compile Include="ViewModels\AccountViewModel.cs" />
-    <Compile Include="ViewModels\ConfigViewModel.cs" />
+    <Compile Include="ViewModels\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

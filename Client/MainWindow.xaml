@@ -11,18 +11,18 @@
     <Grid>
         <Button Content="Выбор папки с профилем" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="160">
             <i:Interaction.Behaviors>
-                <Behavior:FolderDialogBehavior FolderName="{Binding ProfilePath, Mode=TwoWay}"/>
+                <Behavior:FolderDialogBehavior FolderName="{Binding Config.ProfilePath, Mode=TwoWay}"/>
             </i:Interaction.Behaviors>
         </Button>
-        <TextBlock HorizontalAlignment="Left" Text="{Binding Path=ProfilePath}" Margin="175,44,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="307"/>
+        <TextBlock HorizontalAlignment="Left" Text="{Binding Config.ProfilePath}" Margin="175,44,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="307"/>
         <Button Content="Выбор Viber клиента" HorizontalAlignment="Left" Margin="10,68,0,0" VerticalAlignment="Top" Width="160" RenderTransformOrigin="-0.747,0.091">
             <i:Interaction.Behaviors>
-                <Behavior:FileDialogBehavior FileName="{Binding ViberClientPath, Mode=TwoWay}" FilterString="Viber client (.exe)|*.exe" IsMultiselect="False"/>
+                <Behavior:FileDialogBehavior FileName="{Binding Config.ViberClientPath, Mode=TwoWay}" FilterString="Viber client (.exe)|*.exe" IsMultiselect="False"/>
             </i:Interaction.Behaviors>
         </Button>
-        <TextBlock HorizontalAlignment="Left" Text="{Binding Path=ViberClientPath, UpdateSourceTrigger=PropertyChanged}" Margin="175,71,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="307"/>
+        <TextBlock HorizontalAlignment="Left" Text="{Binding Config.ViberClientPath, UpdateSourceTrigger=PropertyChanged}" Margin="175,71,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="307"/>
         <Button Name="Start" Content="Старт" HorizontalAlignment="Left" Margin="10,95,0,0" VerticalAlignment="Top" Width="75" Click="Start_Click"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="175,10,0,0" TextWrapping="Wrap" Text="{Binding Path=ApiUrl}" VerticalAlignment="Top" Width="307"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="175,10,0,0" TextWrapping="Wrap" Text="{Binding Config.ApiUrl}" VerticalAlignment="Top" Width="307"/>
         <Label Content="API URL:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="160"/>
         <Button Name="Stop" Content="Стоп" HorizontalAlignment="Left" Margin="10,122,0,0" VerticalAlignment="Top" Width="75" Click="Stop_Click" IsEnabled="False"/>
         <DataGrid Name="ViberAccounts" HorizontalAlignment="Left" AutoGenerateColumns="False" Height="187" Margin="10,370,0,0" 
@@ -30,10 +30,10 @@
                   ItemsSource="{Binding Accounts}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Телефон" Binding="{Binding Id}" IsReadOnly="True"/>
-                <DataGridCheckBoxColumn Header="Использовать?" Binding="{Binding IsAutoSignIn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
+                <DataGridCheckBoxColumn Header="Использовать?" Binding="{Binding IsValid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
             </DataGrid.Columns>
         </DataGrid>
-        <Button Content="Зарегистрировать новый аккаунт" Name="RegistrationNewAccount" HorizontalAlignment="Left" Margin="10,149,0,0" VerticalAlignment="Top" Width="197" Click="RegistrationNewAccount_Click">
+        <Button Content="Зарегистрировать новый аккаунт" Name="RegistrationNewAccount" HorizontalAlignment="Left" Margin="10,176,0,0" VerticalAlignment="Top" Width="197" Click="RegistrationNewAccount_Click">
             <Button.Style>
                 <Style>
                     <Style.Triggers>
@@ -44,7 +44,7 @@
                 </Style>
             </Button.Style>
         </Button>
-        <Button Content="Сменить аккаунт" Name="ChangeAccount" HorizontalAlignment="Left" Margin="10,176,0,0" VerticalAlignment="Top" Width="197" Click="ChangeAccount_Click">
+        <Button Content="Сменить аккаунт" Name="ChangeAccount" HorizontalAlignment="Left" Margin="10,203,0,0" VerticalAlignment="Top" Width="197" Click="ChangeAccount_Click">
             <Button.Style>
                 <Style>
                     <Style.Triggers>
@@ -55,20 +55,28 @@
                 </Style>
             </Button.Style>
         </Button>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="146,206,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="{Binding Path=AccountChangeAfter}">
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="146,233,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="89" Text="{Binding Config.AccountChangeAfter}">
             <i:Interaction.Behaviors>
                 <Behavior:TextBoxInputBehavior InputMode="DecimalInput"/>
                 <Behavior:TextBoxInputRegExBehaviour RegularExpression="^[0-9]+$" MaxLength="50" />
             </i:Interaction.Behaviors>
         </TextBox>
-        <Label Content="Менять аккаунт после" HorizontalAlignment="Left" Margin="10,203,0,0" VerticalAlignment="Top"/>
+        <Label Content="Менять аккаунт после" HorizontalAlignment="Left" Margin="10,230,0,0" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="10,562,0,0" TextWrapping="Wrap" x:Name="Status" VerticalAlignment="Top" Width="472"/>
-        <Label Content="Размер пакета" HorizontalAlignment="Left" Margin="10,234,0,0" VerticalAlignment="Top"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="105,237,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="{Binding Path=MaxCountMessage}">
+        <Label Content="Размер пакета" HorizontalAlignment="Left" Margin="10,261,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.489,0.218"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="105,261,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="79" Text="{Binding Config.MaxCountMessage}">
             <i:Interaction.Behaviors>
                 <Behavior:TextBoxInputBehavior InputMode="DecimalInput"/>
                 <Behavior:TextBoxInputRegExBehaviour RegularExpression="^[0-9]+$" MaxLength="50" />
             </i:Interaction.Behaviors>
         </TextBox>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="283,292,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="88"  Text="{Binding Config.PauseBetweenTasks}">
+            <i:Interaction.Behaviors>
+                <Behavior:TextBoxInputBehavior InputMode="DecimalInput"/>
+                <Behavior:TextBoxInputRegExBehaviour RegularExpression="^[0-9]+$" MaxLength="50" />
+            </i:Interaction.Behaviors>
+        </TextBox>
+        <Label Content="Пауза между загрузкой новых сообщений (мс)" HorizontalAlignment="Left" Margin="10,289,0,0" VerticalAlignment="Top"/>
+        <Button Name="ChangeViberProfile" Content="Заменить профиль" HorizontalAlignment="Left" Margin="10,149,0,0" VerticalAlignment="Top" Width="124" Click="ChangeViberProfile_Click"/>
     </Grid>
 </Window>

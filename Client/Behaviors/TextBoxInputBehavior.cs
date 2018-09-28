@@ -132,7 +132,6 @@ namespace Client.Behaviors
                     if (input.ToCharArray().Where(x => x == ',').Count() > 1)
                         return false;
 
-
                     if (input.Contains("-"))
                     {
                         if (this.JustPositivDecimalInput)
@@ -153,17 +152,14 @@ namespace Client.Behaviors
                     var result = decimal.TryParse(input, ValidNumberStyles, CultureInfo.CurrentCulture, out d);
                     return result;
 
-
-
                 default: throw new ArgumentException("Unknown TextBoxInputMode");
 
             }
-            return true;
         }
 
         private bool CheckIsDigit(string wert)
         {
-            return wert.ToCharArray().All(Char.IsDigit);
+            return wert.ToCharArray().All(char.IsDigit);
         }
     }
 

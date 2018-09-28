@@ -82,5 +82,17 @@ namespace Client.Properties {
                 this["MaxCountMessage"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5000")]
+        public int PauseBetweenTasks {
+            get {
+                return ((int)(this["PauseBetweenTasks"]));
+            }
+            set {
+                this["PauseBetweenTasks"] = value;
+            }
+        }
     }
 }

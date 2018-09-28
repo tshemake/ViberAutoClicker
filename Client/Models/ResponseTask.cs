@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Client.Models
 {
-    public class ResponeTask
+    public class ResponseTask
     {
         public ICollection<Result> Tasks { get; set; }
     }

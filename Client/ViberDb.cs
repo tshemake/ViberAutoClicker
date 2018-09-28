@@ -38,7 +38,7 @@ namespace Client
                     await context.SaveChangesAsync();
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // ignored
             }
@@ -174,7 +174,7 @@ namespace Client
             {
                 using (var context = new ViberConfigDbContext(_dataSource))
                 {
-                    return context.Accounts.Count(a => a.IsAutoSignIn);
+                    return context.Accounts.Count(a => a.IsValid);
                 }
             }
             catch

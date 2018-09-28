@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using Client.Helpers;
 using Client.Native;
 
 namespace Client
@@ -139,7 +140,12 @@ namespace Client
         {
             return Do(delegate ()
             {
-                System.Windows.Clipboard.SetDataObject(phoneNumber, true);
+                DispatcherHelper.CheckBeginInvokeOnUI(
+                    (Action)(() =>
+                    {
+                        System.Windows.Clipboard.SetDataObject(phoneNumber, true);
+                    }
+                    ));
                 Thread.Sleep(100);
                 _virtualMouse.MoveTo(_positionMap[Position.PhoneNumberEdit]).LeftClick();
                 SendSelectAll();
@@ -157,14 +163,7 @@ namespace Client
 
         private bool IsEnableSendMessage(int countAttempts = 5)
         {
-            SetForegroundWindow();
-            Thread.Sleep(600);
-            Color? color = GetPixelColor(_positionMap[Position.MessageEditBlock]);
-            if (!color.HasValue)
-            {
-                return false;
-            }
-            return true;
+            return Do(delegate () { }, countAttempts, Position.MessageEditBlock);
         }
 
         public bool EnterMessage(string message, int countAttempts = 1)
@@ -172,7 +171,12 @@ namespace Client
             return Do(delegate ()
             {
                 _virtualMouse.MoveTo(_positionMap[Position.MessageEdit]).LeftClick();
-                System.Windows.Clipboard.SetText(message);
+                DispatcherHelper.CheckBeginInvokeOnUI(
+                    (Action)(() =>
+                    {
+                        System.Windows.Clipboard.SetText(message);
+                    }
+                    ));
                 SendSelectAll();
                 SendPaste();
             }, countAttempts, Position.MessageEditBlock);
@@ -413,7 +417,7 @@ namespace Client
             {
             }
 
-            //StopIfRunning();
+            StopIfRunning();
 
             disposed = true;
         }
